@@ -18,9 +18,9 @@ INSTALLED_APPS = (
 Usage
 -----
 
-* As a filemanager : To upload files on server by a user to a directory and let him manage his directory by adding ,renaming and deleting files and folders inside it. For example Website Uploader for students and faculties.
+* As a filemanager : To upload files on server by a user to a directory and let him manage his directory by adding, renaming and deleting files and folders inside it.
 
-* Integrating it with CKEditor for the functionality of "Browse Server". For example its usage in Notice-Board and Events.
+* Integrating it with CKEditor for the functionality of "Browse Server".
 
 
 As a filemanager
