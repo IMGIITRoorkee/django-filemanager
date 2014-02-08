@@ -4,6 +4,13 @@ Filemanager
 Filemanager is a simple Django app to browse files on server.
 You can also integrate this filemanager with CKEditor.
 
+Screenshot
+----------
+
+![screenshot](https://raw2.github.com/esjey/django-filemanager/master/filemanager-screenshot.png)
+
+
+
 Quick start
 -----------
 
