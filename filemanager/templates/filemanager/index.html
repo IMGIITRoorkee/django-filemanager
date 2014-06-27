@@ -102,7 +102,11 @@
   <div id="heading"></div></div>
   <div class="div2"><input id="input" type="text"></div>
  </div>
+ {% if show_status %}
  <div id="status-bar">
+ {% else %}
+ <div id="status-bar" style="display:none">
+ {% endif %}
      <div class="progress">
          <div class="bar" id="space_quota">
          </div>

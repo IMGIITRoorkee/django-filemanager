@@ -103,9 +103,10 @@ class FileManager(object):
       for f in files.getlist('ufile'):
         if re.search('\.\.',f.name) or not re.match('[\w\d_ -/.]+',f.name).group(0) == f.name:
           messages.append("File name is not valid : "+f.name)
-        elif  f.size > self.maxfilesize*1024:
+        elif f.size > self.maxfilesize*1024:
           messages.append("File size exceeded "+str(self.maxfilesize)+" KB : "+f.name)
-        elif  (self.get_size(self.basepath)+f.size) > self.maxspace*1024:
+        elif (settings.FILEMANAGER_CHECK_SPACE and
+             ((self.get_size(self.basepath)+f.size) > self.maxspace*1024)):
           messages.append("Total Space size exceeded "+str(self.maxspace)+" KB : "+f.name)
         elif self.extensions and len(f.name.split('.'))>1 and f.name.split('.')[-1] not in self.extensions:
             messages.append("File extension not allowed (."+f.name.split('.')[-1]+") : "+f.name)
@@ -287,7 +288,10 @@ class FileManager(object):
       form = FileManagerForm(request.POST,request.FILES)
       if form.is_valid():
         messages = self.handle_form(form,request.FILES)
-    space_consumed = self.get_size(self.basepath)
+    if settings.FILEMANAGER_CHECK_SPACE:
+        space_consumed = self.get_size(self.basepath)
+    else:
+        space_consumed = 0
     return render(request, 'filemanager/index.html', {
         'dir_structure': self.directory_structure(),
         'messages':map(str,messages),
@@ -296,5 +300,6 @@ class FileManager(object):
         'ckeditor_baseurl':self.ckeditor_baseurl,
         'public_url_base':self.public_url_base,
         'space_consumed':space_consumed,
-        'max_space':self.maxspace
+        'max_space':self.maxspace,
+        'show_space':settings.FILEMANAGER_SHOW_SPACE,
     })
