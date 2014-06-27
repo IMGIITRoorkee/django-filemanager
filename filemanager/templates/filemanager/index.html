@@ -1,4 +1,4 @@
-<!Doctype HTML Public>
+<!DOCTYPE html>
 <html>
 <head>
  <script type="text/javascript" src="{{STATIC_URL}}filemanager/js/jquery/jquery.min.js"></script>
@@ -41,7 +41,7 @@
      <input type="text" id="file_or_dir" name="file_or_dir" value="" style="display:none;">
      <input type="submit" id="submit" name="submit" value="Submit" style="display:none;">
    <label class="control" id="upload-label" for="ufile">
-    <img src="{{STATIC_URL}}filemanager/images/upload.png" style="width:16px;height:16px" width="100%" height="100%"></img>
+    <img src="{{STATIC_URL}}filemanager/images/upload.png" style="width:16px;height:16px" width="100%" height="100%"/>
     <span>Upload Files</span>
    </label>
    </form>
@@ -54,51 +54,51 @@
  </div>
  <div id="dir-menu" class="menu" style="display:none">
   <div id="add-dir" class="menu-option" onclick="do_action('add','dir')">
-   <img src="{{STATIC_URL}}filemanager/images/add_folder.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Create Sub-Folder</span>
+   <img src="{{STATIC_URL}}filemanager/images/add_folder.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Create Sub-Folder</span>
   </div><hr>
   <div id="cut-dir" class="menu-option" onclick="do_action('cut','dir')">
-   <img src="{{STATIC_URL}}filemanager/images/cut.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Cut</span>
+   <img src="{{STATIC_URL}}filemanager/images/cut.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Cut</span>
   </div><hr>
   <div id="copy-dir" class="menu-option" onclick="do_action('copy','dir')">
-   <img src="{{STATIC_URL}}filemanager/images/copy.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Copy</span>
+   <img src="{{STATIC_URL}}filemanager/images/copy.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Copy</span>
   </div><hr>
   <div id="paste-dir" class="menu-option" onclick="do_action('paste','dir')">
-   <img src="{{STATIC_URL}}filemanager/images/paste.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Paste</span>
+   <img src="{{STATIC_URL}}filemanager/images/paste.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Paste</span>
   </div><hr>
   <div id="rename-dir" class="menu-option" onclick="do_action('rename','dir')">
-   <img src="{{STATIC_URL}}filemanager/images/rename.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Rename</span>
+   <img src="{{STATIC_URL}}filemanager/images/rename.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Rename</span>
   </div><hr>
   <div id="download-dir" class="menu-option" onclick="do_action('download','dir')">
-   <img src="{{STATIC_URL}}filemanager/images/download.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Download</span>
+   <img src="{{STATIC_URL}}filemanager/images/download.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Download</span>
   </div><hr>
   <div id="delete-dir" class="menu-option" onclick="do_action('delete','dir')">
-   <img src="{{STATIC_URL}}filemanager/images/delete.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Delete</span>
+   <img src="{{STATIC_URL}}filemanager/images/delete.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Delete</span>
   </div>
  </div>
  <div id="file-menu" class="menu" style="display:none">
   <div id="rename-file" class="menu-option" onclick="do_action('rename','file')">
-   <img src="{{STATIC_URL}}filemanager/images/rename.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Rename</span>
+   <img src="{{STATIC_URL}}filemanager/images/rename.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Rename</span>
   </div><hr>
   <div id="cut-file" class="menu-option" onclick="do_action('cut','file')">
-   <img src="{{STATIC_URL}}filemanager/images/cut.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Cut</span>
+   <img src="{{STATIC_URL}}filemanager/images/cut.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Cut</span>
   </div><hr>
   <div id="copy-file" class="menu-option" onclick="do_action('copy','file')">
-   <img src="{{STATIC_URL}}filemanager/images/copy.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Copy</span>
+   <img src="{{STATIC_URL}}filemanager/images/copy.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Copy</span>
   </div><hr>
   <div id="download-file" class="menu-option" onclick="do_action('download','file')">
-   <img src="{{STATIC_URL}}filemanager/images/download.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Download</span>
+   <img src="{{STATIC_URL}}filemanager/images/download.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Download</span>
   </div><hr>
   <div id="delete-file" class="menu-option" onclick="do_action('delete','file')">
-   <img src="{{STATIC_URL}}filemanager/images/delete.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Delete</span>
+   <img src="{{STATIC_URL}}filemanager/images/delete.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Delete</span>
   </div>
   {% if public_url_base %}
   <hr>
   <div id="copy-public-link-file" class="menu-option">
-   <img src="{{STATIC_URL}}filemanager/images/copy_public_link.png" style="width:16px;height:16px" width="100%" height="100%"></img><span>Copy public link</span>
+   <img src="{{STATIC_URL}}filemanager/images/copy_public_link.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Copy public link</span>
   </div>
   {% endif %}
  </div> <div id="popup">
-  <div class="div1"><img src='{{STATIC_URL}}filemanager/images/close.png' onclick="$('#popup').hide();"></img>
+  <div class="div1"><img src='{{STATIC_URL}}filemanager/images/close.png' onclick="$('#popup').hide();"/>
   <div id="heading"></div></div>
   <div class="div2"><input id="input" type="text"></div>
  </div>
@@ -112,5 +112,5 @@
  <span id="status">
  </span>
  </div>
-</body> 
+</body>
 </html>
