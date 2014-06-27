@@ -5,8 +5,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext
 from django.core.servers.basehttp import FileWrapper
 from django import forms
+from PIL import Image
 import settings
-import Image
 import mimetypes
 import os
 import shutil
@@ -34,7 +34,7 @@ class FileManagerForm(forms.Form):
 
 class FileManager(object):
   """
-  maxspcae,maxfilesize in KB
+  maxspace,maxfilesize in KB
   """
   idee = 0
   def __init__(self,basepath,ckeditor_baseurl='',maxfolders=50,maxspace=5*1024,maxfilesize=1*1024,public_url_base=None,extensions=None):
