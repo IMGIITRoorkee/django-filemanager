@@ -44,8 +44,8 @@ body{
   font-size:14px;
   padding-top:5px;
 }
-#status {
-  padding-left:20px;
+#space_quota_string {
+  padding-right:20px;
 }
 .directory{
   height:30px;

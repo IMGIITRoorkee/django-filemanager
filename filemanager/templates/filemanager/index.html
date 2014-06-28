@@ -102,19 +102,17 @@
   <div id="heading"></div></div>
   <div class="div2"><input id="input" type="text"></div>
  </div>
- {% if show_status %}
  <div id="status-bar">
- {% else %}
- <div id="status-bar" style="display:none">
- {% endif %}
-     <div class="progress">
+ {% if show_space %}
+    <div class="progress">
          <div class="bar" id="space_quota">
          </div>
-   </div>
-   <span id="space_quota_string">
- </span>
- <span id="status">
- </span>
+    </div>
+    <span id="space_quota_string">
+    </span>
+ {% endif %}
+     <span id="status">
+     </span>
  </div>
 </body>
 </html>
