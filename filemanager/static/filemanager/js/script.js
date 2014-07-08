@@ -98,7 +98,12 @@ function change_sign(id)
 
 function CKEditorRepy(filename)
 { var filepath = ckeditor_baseurl+get_path(dir_id)+filename;
-  window.opener.CKEDITOR.tools.callFunction(CKEditorFuncNum,filepath);
+  if (CKEditorFuncNum == 424242) {
+      window.opener.callback(filepath);
+  }
+  else {
+    window.opener.CKEDITOR.tools.callFunction(CKEditorFuncNum,filepath);
+  }
   window.close();
 }
 
