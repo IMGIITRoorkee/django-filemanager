@@ -37,9 +37,13 @@ function onload(){
      $('#message').html('Hint : Use right click to add,rename or delete files and folders');
   $('#ufile').change(function(){form_submit('upload','file');});
   if($.browser.mozilla) {
-    $('#upload-label').click(function(){
-      $('#ufile').click();
-    });
+    moz_major_ver = (+($.browser.version.split(".")[0]))
+    if(moz_major_ver < 23){
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=701353 should be fixed in 23
+      $('#upload-label').click(function(){
+        $('#ufile').click();
+      });
+    }
   }
   $('#space_quota').width(((space_consumed*100)/max_space).toString()+'%');
   $('#space_quota_string').html(get_human_string(space_consumed) + ' of ' + get_human_string(max_space) + ' used');
