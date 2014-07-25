@@ -250,7 +250,7 @@ class FileManager(object):
         w = width*60/mx
         h = height*60/mx
       img = img.resize((w,h), Image.ANTIALIAS)
-      response = HttpResponse(mimetype="image/png")
+      response = HttpResponse(content_type="image/png")
       response['Cache-Control'] = 'max-age:3600'
       img.save(response,'png')
       return response
@@ -268,7 +268,7 @@ class FileManager(object):
     elif file_or_dir == 'dir':
       dirpath = self.basepath + '/' + path
       dirname = dirpath.split('/')[-2]
-      response = HttpResponse(mimetype='application/x-gzip')
+      response = HttpResponse(content_type='application/x-gzip')
       response['Content-Disposition'] = 'attachment; filename=%s.tar.gz' % dirname
       tarred = tarfile.open(fileobj=response, mode='w:gz')
       tarred.add(dirpath,arcname=dirname)
