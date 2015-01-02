@@ -7,7 +7,7 @@ You can also integrate this filemanager with CKEditor.
 Screenshot
 ----------
 
-![screenshot](https://raw2.github.com/esjey/django-filemanager/master/filemanager-screenshot.png)
+![screenshot](https://raw.githubusercontent.com/IMGIITRoorkee/django-filemanager/master/filemanager-screenshot.png)
 
 
 
