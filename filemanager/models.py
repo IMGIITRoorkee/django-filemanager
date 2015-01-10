@@ -1,5 +1,6 @@
 from django.db import models
 from django import forms
+from .widgets import CKEditorWidget
 
 class CKEditorField(models.TextField):
   def __init__(self, *args, **kwargs):
@@ -13,7 +14,7 @@ class CKEditorField(models.TextField):
   def formfield(self, **kwargs):
     defaults = {
       'form_class': forms.CharField,
-      'widget': forms.CKEditorWidget(config=self.config, filemanager_url=self.filemanager_url)
+      'widget': CKEditorWidget(config=self.config, filemanager_url=self.filemanager_url)
     }
     defaults.update(kwargs)
     return super(CKEditorField, self).formfield(**defaults)
