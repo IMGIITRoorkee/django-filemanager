@@ -1,6 +1,8 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from django import forms
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.utils._os import safe_join
+
 from PIL import Image
 
 import mimetypes
@@ -40,8 +42,6 @@ class FileManager(object):
 
     def __init__(self, basepath, ckeditor_baseurl='', maxfolders=50, maxspace=5*1024, maxfilesize=1*1024,
                  public_url_base=None, extensions=None):
-        if basepath[-1] == '/':
-            basepath = basepath[:-1]
         if ckeditor_baseurl and ckeditor_baseurl[-1] == '/':
             ckeditor_baseurl = ckeditor_baseurl[:-1]
         self.basepath = basepath
@@ -114,7 +114,7 @@ class FileManager(object):
                 elif self.extensions and len(f.name.split('.')) == 1 and f.name.split('.')[-1] not in self.extensions:
                     messages.append("No file extension in uploaded file : "+f.name)
                 else:
-                    filepath = self.basepath + path + self.rename_if_exists(self.basepath+path, f.name)
+                    filepath = safe_join(self.basepath, path, self.rename_if_exists(safe_join(self.basepath, path), f.name))
                     with open(filepath, 'wb') as dest:
                         for chunk in f.chunks():
                             dest.write(chunk)
@@ -126,7 +126,7 @@ class FileManager(object):
             no_of_folders = len(list(os.walk('.')))
             if (no_of_folders + 1) <= self.maxfolders:
                 try:
-                    os.chdir(self.basepath+path)
+                    os.chdir(safe_join(self.basepath, path))
                     os.mkdir(name)
                     messages.append('Folder created successfully : '+name)
                 except:
@@ -137,7 +137,7 @@ class FileManager(object):
             oldname = path.split('/')[-2]
             path = '/'.join(path.split('/')[:-2])
             try:
-                os.chdir(self.basepath+path)
+                os.chdir(safe_join(self.basepath, path))
                 os.rename(oldname, name)
                 messages.append('Folder renamed successfully from '+oldname+' to '+name)
             except:
@@ -149,7 +149,7 @@ class FileManager(object):
                 name = path.split('/')[-2]
                 path = '/'.join(path.split('/')[:-2])
                 try:
-                    os.chdir(self.basepath+path)
+                    os.chdir(safe_join(self.basepath, path))
                     shutil.rmtree(name)
                     messages.append('Folder deleted successfully : ' + name)
                 except:
@@ -161,7 +161,7 @@ class FileManager(object):
             if old_ext == new_ext:
                 path = '/'.join(path.split('/')[:-1])
                 try:
-                    os.chdir(self.basepath+path)
+                    os.chdir(safe_join(self.basepath, path))
                     os.rename(oldname, name)
                     messages.append('File renamed successfully from '+oldname+' to '+name)
                 except:
@@ -178,7 +178,7 @@ class FileManager(object):
                 name = path.split('/')[-1]
                 path = '/'.join(path.split('/')[:-1])
                 try:
-                    os.chdir(self.basepath+path)
+                    os.chdir(safe_join(self.basepath, path))
                     os.remove(name)
                     messages.append('File deleted successfully : '+name)
                 except:
@@ -189,7 +189,7 @@ class FileManager(object):
                 messages.append('Cannot move/copy to a child folder')
             else:
                 path = os.path.normpath(path)  # strip trailing slash if any
-                if os.path.exists(self.basepath+self.current_path+os.path.basename(path)):
+                if os.path.exists(safe_join(self.basepath, self.current_path, os.path.basename(path))):
                     messages.append('ERROR: A file/folder with this name already exists in the destination folder.')
                 else:
                     if action == 'move':
@@ -200,7 +200,8 @@ class FileManager(object):
                         else:
                             method = shutil.copy
                     try:
-                        method(self.basepath+path, self.basepath+self.current_path+os.path.basename(path))
+                        method(safe_join(self.basepath, path),
+                               safe_join(self.basepath, self.current_path, os.path.basename(path)))
                     except:
                         messages.append('File/folder couldn\'t be moved/copied.')
         return messages
@@ -227,7 +228,7 @@ class FileManager(object):
         try:
             mimetypes.init()
             mimetype = mimetypes.guess_type(path)[0]
-            img = Image.open(self.basepath+'/'+path)
+            img = Image.open(safe_join(self.basepath, path))
             width, height = img.size
             mx = max(width, height)
             w, h = width, height
@@ -260,14 +261,14 @@ class FileManager(object):
         if not re.match(r'[\w\d_ -/]*', path).group(0) == path:
             return HttpResponse('Invalid path')
         if file_or_dir == 'file':
-            filepath = self.basepath + '/' + path
+            filepath = safe_join(self.basepath, path)
             response = HttpResponse(open(filepath), content_type=mimetypes.guess_type(filepath)[0])
             response['Content-Length'] = os.path.getsize(filepath)
             response['Content-Disposition'] = 'attachment; filename=' + path.split('/')[-1]
             return response
         elif file_or_dir == 'dir':
-            dirpath = self.basepath + '/' + path
-            dirname = dirpath.split('/')[-2]
+            dirpath = safe_join(self.basepath, path)
+            dirname = os.path.basename(dirpath)
             response = HttpResponse(content_type='application/x-gzip')
             response['Content-Disposition'] = 'attachment; filename=%s.tar.gz' % dirname
             tarred = tarfile.open(fileobj=response, mode='w:gz')
