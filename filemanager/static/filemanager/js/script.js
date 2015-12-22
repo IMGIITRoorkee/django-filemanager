@@ -1,5 +1,5 @@
 var action,type;
-var selected_dir_id,selected_file;
+var selected_dir_id, selected_file;
 var zclip = false;
 
 function get_human_string(val)
@@ -33,7 +33,6 @@ function onload(){
 }
 
 $('body').ready(onload);
-$(window).resize(size);
 
 function refresh_dirs() {
     $('#left').html(show_directories(dir_structure));
