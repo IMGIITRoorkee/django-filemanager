@@ -17,15 +17,7 @@ function get_human_string(val)
   return val + denominations[i];
 }
 
-function size(){
-  $('#main').height($(window).height()-47);
-  $('#left').height($(window).height()-69);
-  $('#right').height($(window).height()-49);
-  $('#content').height($(window).height()-100);
-}
-
 function onload(){
-  size();
   refresh_dirs();
   show_files(dir_id);
   $('body').bind('click',function(e){$('#dir-menu').hide();$('#file-menu').hide();});
@@ -36,15 +28,6 @@ function onload(){
   else
      $('#message').html('Hint : Use right click to add,rename or delete files and folders');
   $('#ufile').change(function(){form_submit('upload','file');});
-  if($.browser.mozilla) {
-    moz_major_ver = (+($.browser.version.split(".")[0]))
-    if(moz_major_ver < 23){
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=701353 should be fixed in 23
-      $('#upload-label').click(function(){
-        $('#ufile').click();
-      });
-    }
-  }
   $('#space_quota').width(((space_consumed*100)/max_space).toString()+'%');
   $('#space_quota_string').html(get_human_string(space_consumed) + ' of ' + get_human_string(max_space) + ' used');
 }
@@ -52,13 +35,12 @@ function onload(){
 $('body').ready(onload);
 $(window).resize(size);
 
-function refresh_dirs()
-{
- $('#left').html(show_directories(dir_structure));
+function refresh_dirs() {
+    $('#left').html(show_directories(dir_structure));
 }
 
-function get_dir(id,ds)
-{if(!ds)ds=dir_structure;
+function get_dir(id,ds) {
+    if(!ds)ds=dir_structure;
  dir = null;
  for(d in ds)
  { if(ds[d]['id']==id)
