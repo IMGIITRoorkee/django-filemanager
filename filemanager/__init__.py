@@ -2,6 +2,7 @@ from django import forms
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils._os import safe_join
+from django.utils.six.moves.urllib.parse import urljoin
 
 from PIL import Image
 
@@ -42,8 +43,6 @@ class FileManager(object):
 
     def __init__(self, basepath, ckeditor_baseurl='', maxfolders=50, maxspace=5*1024, maxfilesize=1*1024,
                  public_url_base=None, extensions=None):
-        if ckeditor_baseurl and ckeditor_baseurl[-1] == '/':
-            ckeditor_baseurl = ckeditor_baseurl[:-1]
         self.basepath = basepath
         self.ckeditor_baseurl = ckeditor_baseurl
         self.maxfolders = maxfolders
@@ -52,25 +51,19 @@ class FileManager(object):
         self.extensions = extensions
         self.public_url_base = public_url_base
 
-    def rename_if_exists(self, folder, file):
-        if folder[-1] != os.sep:
-            folder = folder + os.sep
-        if os.path.exists(folder+file):
-            if file.find('.') == -1:
-                # no extension
-                for i in range(1000):
-                    if not os.path.exists(folder+file+'.'+str(i)):
-                        break
-                return file+'.'+str(i)
+    # XXX Replace with with using storage API
+    def rename_if_exists(self, folder, filename):
+        if os.path.exists(safe_join(folder, filename)):
+            root, ext = os.path.splitext(filename)
+            if not ext:
+                fmt = '{root}.{i}'
             else:
-                extension = file[file.rfind('.'):]
-                name = file[:file.rfind('.')]
-                for i in range(1000):
-                    if not os.path.exists(folder+name+'.'+str(i)+extension):
-                        break
-                return name + '.' + str(i) + extension
-        else:
-            return file
+                fmt = '{root}.{i}.{ext}'
+            for i in range(1000):
+                filename = fmt.format(root=root, i=i, ext=ext)
+                if not os.path.exists(safe_join(folder, filename)):
+                    break
+        return filename
 
     def get_size(self, start_path):
         total_size = 0
@@ -81,7 +74,7 @@ class FileManager(object):
         return total_size
 
     def next_id(self):
-        self.idee = self.idee+1
+        self.idee = self.idee + 1
         return self.idee
 
     def handle_form(self, form, files):
@@ -104,11 +97,11 @@ class FileManager(object):
         if action == 'upload':
             for f in files.getlist('ufile'):
                 if re.search('\.\.', f.name) or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name:
-                    messages.append("File name is not valid : "+f.name)
-                elif f.size > self.maxfilesize*1024:
-                    messages.append("File size exceeded "+str(self.maxfilesize)+" KB : "+f.name)
+                    messages.append("File name is not valid : " + f.name)
+                elif f.size > self.maxfilesize * 1024:
+                    messages.append("File size exceeded {} KB : {}".format(self.maxfilesize, f.name))
                 elif (settings.FILEMANAGER_CHECK_SPACE and ((self.get_size(self.basepath) + f.size) > self.maxspace*1024)):
-                    messages.append("Total Space size exceeded "+str(self.maxspace)+" KB : "+f.name)
+                    messages.append("Total Space size exceeded {} KB: {}".format(self.maxspace, f.name))
                 elif self.extensions and len(f.name.split('.')) > 1 and f.name.split('.')[-1] not in self.extensions:
                     messages.append("File extension not allowed (."+f.name.split('.')[-1]+") : "+f.name)
                 elif self.extensions and len(f.name.split('.')) == 1 and f.name.split('.')[-1] not in self.extensions:
@@ -128,49 +121,46 @@ class FileManager(object):
                 try:
                     os.chdir(safe_join(self.basepath, path))
                     os.mkdir(name)
-                    messages.append('Folder created successfully : '+name)
+                    messages.append('Folder created successfully : {}'.format(name))
                 except:
-                    messages.append('Folder couldn\'t be created : '+name)
+                    messages.append("Folder couldn't be created : {}".format(name))
             else:
-                messages.append('Folder couldn\' be created because maximum number of folders exceeded : '+str(self.maxfolders))
+                messages.append("Folder couldn' be created because maximum number of folders exceeded : {}".format(self.maxfolders))
         elif action == 'rename' and file_or_dir == 'dir':
-            oldname = path.split('/')[-2]
-            path = '/'.join(path.split('/')[:-2])
+            path, oldname = os.path.split(path)
             try:
                 os.chdir(safe_join(self.basepath, path))
                 os.rename(oldname, name)
-                messages.append('Folder renamed successfully from '+oldname+' to '+name)
+                messages.append('Folder renamed successfully from {} to {}'.format(oldname, name))
             except:
-                messages.append('Folder couldn\'t renamed to '+name)
+                messages.append("Folder couldn't renamed to {}".format(name))
         elif action == 'delete' and file_or_dir == 'dir':
             if path == '/':
                 messages.append("root folder can't be deleted")
             else:
-                name = path.split('/')[-2]
-                path = '/'.join(path.split('/')[:-2])
+                path, name = os.path.split(path)
                 try:
                     os.chdir(safe_join(self.basepath, path))
                     shutil.rmtree(name)
-                    messages.append('Folder deleted successfully : ' + name)
+                    messages.append('Folder deleted successfully : {}'.format(name))
                 except:
-                    messages.append("Folder couldn't deleted : " + name)
+                    messages.append("Folder couldn't deleted : {}".format(name))
         elif action == 'rename' and file_or_dir == 'file':
-            oldname = path.split('/')[-1]
-            old_ext = oldname.split('.')[1] if len(oldname.split('.')) > 1 else None
-            new_ext = name.split('.')[1] if len(name.split('.')) > 1 else None
+            path, oldname = os.path.split(path)
+            _, old_ext = os.path.splitext(oldname)
+            _, new_ext = os.path.splitext(name)
             if old_ext == new_ext:
-                path = '/'.join(path.split('/')[:-1])
                 try:
                     os.chdir(safe_join(self.basepath, path))
                     os.rename(oldname, name)
-                    messages.append('File renamed successfully from '+oldname+' to '+name)
+                    messages.append('File renamed successfully from {} to {}'.format(oldname, name))
                 except:
-                    messages.append('File couldn\'t be renamed to '+name)
+                    messages.append("File couldn't be renamed to {}".format(name))
             else:
                 if old_ext:
-                    messages.append('File extension should be same : .'+old_ext)
+                    messages.append('File extension should be same : .{}'.format(old_ext))
                 else:
-                    messages.append('New file extension didn\'t match with old file extension')
+                    messages.append("New file extension didn't match with old file extension")
         elif action == 'delete' and file_or_dir == 'file':
             if path == '/':
                 messages.append('root folder can\'t be deleted')
@@ -241,9 +231,9 @@ class FileManager(object):
             img.save(response, mimetype.split('/')[1] if mimetype else ext.upper())
             return response
         except Exception:
-            imagepath = settings.FILEMANAGER_STATIC_ROOT+'images/icons/'+ext+'.png'
+            imagepath = urljoin(settings.FILEMANAGER_STATIC_ROOT, 'images/icons/', ext+'.png')
             if not os.path.exists(imagepath):
-                imagepath = settings.FILEMANAGER_STATIC_ROOT+'images/icons/default.png'
+                imagepath = urljoin(settings.FILEMANAGER_STATIC_ROOT, 'images/icons/default.png')
             img = Image.open(imagepath)
             width, height = img.size
             mx = max(width, height)
