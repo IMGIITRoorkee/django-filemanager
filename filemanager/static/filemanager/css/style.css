@@ -6,38 +6,38 @@
 body{
   border: 1px solid #888;
   background: #E0DFDE
-}  
-#main{ 
+}
+#main{
   margin:10px 10px 5px 10px;
 }
 #left{
   margin-right:10px;
   padding:10px;
-  width:25%;    
+  width:25%;
   float:left;
   background:white;
   border:1px solid #ADABA9;
   border-radius: 6px;
   -moz-border-radius: 6px;
-  overflow:auto;  
+  overflow:auto;
 }
- 
+
 #right{
   width:70%;
-  float:left; 
-}   
+  float:left;
+}
 #control{
   height:22px;
-  padding:4px;       
-}  
+  padding:4px;
+}
 #content{
   padding:10px;
   background:white;
-  border:1px solid #ADABA9; 
+  border:1px solid #ADABA9;
   border-radius: 6px;
-  -moz-border-radius: 6px;  
+  -moz-border-radius: 6px;
   overflow-y:auto;
-}  
+}
 #status-bar{
   margin:0px 15px;
   height:25px;
@@ -53,155 +53,163 @@ body{
 .directory-name{
   float:left;
   padding:3px;
-  padding-left:8px;        
-  color:#302010; 
-}  
+  padding-left:8px;
+  color:#302010;
+}
 .directory-image{
   width:24px;
   height:24px;
-  float:left;   
+  float:left;
 }
 .directory-image-name{
   float:left;
-  height:24px;      
-  padding:1px 2px 1px 4px;        
-  cursor:pointer;         
+  height:24px;
+  padding:1px 2px 1px 4px;
+  cursor:pointer;
 }
 .directory-image-name:hover {
   background:#ffffd0;
-  padding:0px 2px 0px 3px;           
+  padding:0px 2px 0px 3px;
   border:1px solid #ddddb0;
    border-radius: 2px;
-  -moz-border-radius: 2px;        
+  -moz-border-radius: 2px;
 }
 .directory-sign{
   float:left;
   width:20px;
   height:20px;
-  padding:3px;       
+  padding:3px;
   color:#4050D0;
-  cursor:pointer;      
-}  
+  cursor:pointer;
+}
 .directory-sign:hover {
   color:#2030A0;
-}  
+}
 .file{
   width:82px;
   height:94px;
-  overflow:hidden;  
+  overflow:hidden;
   padding: 4px;
   margin: 9px;
-  float:left;   
+  float:left;
   border: 1px solid #AAA;
   border-radius: 4px;
   -moz-border-radius: 4px;
-  cursor:pointer;  
+  cursor:pointer;
 }
 .file:hover {
   background:#dddff0;
-}  
+}
 .thumbnail{
   width:60px;
   height:60px;
-  margin:10px;       
+  margin:10px;
 }
 .thumbnail div{
   width:60px;
   height:60px;
-  background:no-repeat center center;       
-}  
+  background:no-repeat center center;
+}
 .filename{
   text-align:center;
   text-overflow:ellipsis;
   overflow:hidden;
-  font:12px sans-serif;         
+  font:12px sans-serif;
 }
 .menu{
   position:fixed;
   width:150px;
   margin:3px;
-  padding:2px;        
-  left:100px;
-  top:100px;
+  padding:2px;
   z-index:100;
   background:white;
-  border:1px solid #555;  
+  border: 1px solid #555;
   border-radius: 4px;
-  -moz-border-radius: 4px;
 }
-.menu-option{
-  height:20px;
-  padding:5px;
-  font-size:11px;   
-  cursor:pointer;  
+.menu li {
+    list-style-type: none;
+    list-style-position: inside;
+
+    line-height:20px;
+    vertical-align: baseline;
+    padding:5px;
+    font-size:11px;
+    cursor:pointer;
 }
-.menu-option:hover {
-  background:#eee;
-}             
-.menu-option img{
-  float:left;
-} 
-.menu-option span{
-  display:block;
-  float:left;
-  padding:2px 5px 5px 10px;
-} 
+.menu li:hover { background:#eee; }
+
+.menu li.add-dir { list-style-image: url(../images/add_folder.png); }
+.menu li.cut-dir { list-style-image: url(../images/cut.png); }
+.menu li.copy-dir { list-style-image: url(../images/copy.png); }
+.menu li.paste-dir { list-style-image: url(../images/paste.png); }
+.menu li.rename-dir { list-style-image: url(../images/rename.png); }
+.menu li.download-dir { list-style-image: url(../images/download.png); }
+.menu li.delete-dir { list-style-image: url(../images/delete.png); }
+
+.menu li.rename-file { list-style-image: url(../images/rename.png); }
+.menu li.cut-file { list-style-image: url(../images/cut.png); }
+.menu li.copy-file { list-style-image: url(../images/copy.png); }
+.menu li.download-file { list-style-image: url(../images/download.png); }
+.menu li.delete-file { list-style-image: url(../images/delete.png); }
+
+.menu li.copy-public-link { list-style-image: url(../images/copy_public_link.png); }
+
 #popup{
   display:none;
   width:200px;
   height:90px;
   background:#ddd;
-  border:4px solid #555;  
+  border:4px solid #555;
   border-radius: 10px;
-  -moz-border-radius: 10px;            
-  position:absolute;  
+  -moz-border-radius: 10px;
+  position:absolute;
   top:200px;
-  left:512px;    
-  z-index:201;    
-}     
+  left:512px;
+  z-index:201;
+}
 #popup .div1{
   height:40px;
-  padding:4px;       
+  padding:4px;
 }
 #popup .div2{
  padding:5px 5px 5px 10px;
-}  
+}
 #popup .div1 img{
-  cursor:pointer;   
+  cursor:pointer;
   width:16px;
   height:16px;
-  float:right;        
+  float:right;
 }
 #popup .div1 div{
   float:left;
-  padding:15px 5px 5px 10px;    
-  font-size:12px;        
+  padding:15px 5px 5px 10px;
+  font-size:12px;
 }
 #popup .div2 input{
   width:170px;
-}        
+}
 .control{
  width:120px;
- height:20px;      
- float:left;      
+ height:20px;
+ float:left;
  padding:2px 2px 2px 4px;
- cursor:pointer;        
-}  
+ cursor:pointer;
+}
 .control:hover {
   padding:1px 1px 1px 3px;
   background:#e0e0e4;
   border:1px solid #b0b0b4;
   border-radius: 2px;
-  -moz-border-radius: 2px;  
+  -moz-border-radius: 2px;
 }
 #message{
- height:20px;      
+ height:20px;
  float:left;
  font:13px sans-serif;
- color:#504700;     
+ color:#504700;
  padding:4px 2px 0px 4px;
- overflow:hidden;        
-}  
+ overflow:hidden;
+}
 .current_directory > .directory-image-name
 {
  background: none repeat scroll 0 0 #FFFFD0;
