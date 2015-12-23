@@ -5,9 +5,9 @@
 }
 body {
   border: 1px solid #888;
-  background: #E0DFDE
+  background: #E0DFDE;
 }
-#main {
+main {
     height: calc(100vh - 47px);
     margin: 10px 10px 5px 10px;
 }

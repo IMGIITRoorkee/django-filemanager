@@ -1,13 +1,13 @@
 <!DOCTYPE html>{% load static %}
 <html>
-  <head>
-    <script type="text/javascript" src="{% static 'filemanager/js/jquery/jquery.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'filemanager/js/jquery/zclip/jquery.zclip.min.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'filemanager/css/style.css' %}">
-    <!--[if IE]>
-<script type="text/javascript" src="{% static 'filemanager/js/es5-shim.min.js' %}"></script>
-<![endif]-->
-    <script type="text/javascript">
+    <head>
+        <script type="text/javascript" src="{% static 'filemanager/js/jquery/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'filemanager/js/jquery/zclip/jquery.zclip.min.js' %}"></script>
+        <link rel="stylesheet" type="text/css" href="{% static 'filemanager/css/style.css' %}">
+        <!--[if IE]>
+            <script type="text/javascript" src="{% static 'filemanager/js/es5-shim.min.js' %}"></script>
+        <![endif]-->
+        <script type="text/javascript">
  var dir_structure = {{dir_structure|safe}};
  var messages = {{messages|safe}};
  var dir_id = {{current_id}};
@@ -18,65 +18,65 @@
  var clipboard = {'empty': true, 'path': 'full path will come here', 'mode': 'cut or copy', 'type': 'file or dir'}
  var space_consumed = {{space_consumed}};
  var max_space = {{max_space}}*1024;
-    </script>
-    <script type="text/javascript" src="{% static 'filemanager/js/script.js' %}"></script>
-  </head>
-  <body oncontextmenu="return false;">
-    <div id="main">
-      <div id="left"></div>
-      <div id="right">
-        <div id="control">
-          <form method="POST" id="form" enctype="multipart/form-data" style="">{% csrf_token %}
-            <input type="file" id="ufile" name="ufile" style="position:fixed;top:-100px" multiple>
-            <input type="text" id="action" name="action" style="display:none;">
-            <input type="text" id="path" name="path" value="" style="display:none;">
-            <input type="text" id="name" name="name" value="" style="display:none;">
-            <input type="text" id="current_path" name="current_path" value="" style="display:none;">
-            <input type="text" id="file_or_dir" name="file_or_dir" value="" style="display:none;">
-            <input type="submit" id="submit" name="submit" value="Submit" style="display:none;">
-            <label class="control" id="upload-label" for="ufile">
-              <img src="{% static 'filemanager/images/upload.png' %}">
-              <span>Upload Files</span>
-            </label>
-          </form>
-          <div id="message"></div>
+        </script>
+        <script type="text/javascript" src="{% static 'filemanager/js/script.js' %}"></script>
+    </head>
+    <body oncontextmenu="return false;">
+        <main>
+            <div id="left"></div>
+            <div id="right">
+                <div id="control">
+                    <form method="POST" id="form" enctype="multipart/form-data" style="">{% csrf_token %}
+                        <input type="file" id="ufile" name="ufile" style="position:fixed;top:-100px" multiple>
+                        <input type="text" id="action" name="action" style="display:none;">
+                        <input type="text" id="path" name="path" value="" style="display:none;">
+                        <input type="text" id="name" name="name" value="" style="display:none;">
+                        <input type="text" id="current_path" name="current_path" value="" style="display:none;">
+                        <input type="text" id="file_or_dir" name="file_or_dir" value="" style="display:none;">
+                        <input type="submit" id="submit" name="submit" value="Submit" style="display:none;">
+                        <label class="control" id="upload-label" for="ufile">
+                            <img src="{% static 'filemanager/images/upload.png' %}">
+                            <span>Upload Files</span>
+                        </label>
+                    </form>
+                    <div id="message"></div>
+                </div>
+                <div id="content"></div>
+            </div>
+        </main>
+        <ul class="menu" id="dir-menu"  style="display:none">
+            <li class="add-dir" onclick="do_action('add', 'dir')">Create Sub-Folder</li>
+            <li class="cut-dir" onclick="do_action('cut', 'dir')">Cut</li>
+            <li class="copy-dir" onclick="do_action('copy', 'dir')">Copy</li>
+            <li class="paste-dir" onclick="do_action('paste', 'dir')">Paste</li>
+            <li class="rename-dir" onclick="do_action('rename', 'dir')">Rename</li>
+            <li class="download-dir" onclick="do_action('download', 'dir')">Download</li>
+            <li class="delete-dir" onclick="do_action('delete', 'dir')">Delete</li>
+        </ul>
+        <ul class="menu" id="file-menu" style="display:none">
+            <li class="rename-file" onclick="do_action('rename','file')">Rename</li>
+            <li class="cut-file" onclick="do_action('cut','file')">Cut</li>
+            <li class="copy-file" onclick="do_action('copy','file')">Copy</li>
+            <li class="download-file" onclick="do_action('download','file')">Download</li>
+            <li class="delete-file" onclick="do_action('delete','file')">Delete</li>
+            {% if public_url_base %}
+            <li class="copy-public-link-file">Copy public link</li>
+            {% endif %}
+        </ul>
+        <div id="popup">
+            <div class="div1"><img src="{% static 'filemanager/images/close.png' %}" onclick="$('#popup').hide();"/>
+                <div id="heading"></div>
+            </div>
+            <div class="div2"><input id="input" type="text"></div>
         </div>
-        <div id="content"></div>
-      </div>
-    </div>
-    <ul class="menu" id="dir-menu"  style="display:none">
-      <li class="add-dir" onclick="do_action('add', 'dir')">Create Sub-Folder</li>
-      <li class="cut-dir" onclick="do_action('cut', 'dir')">Cut</li>
-      <li class="copy-dir" onclick="do_action('copy', 'dir')">Copy</li>
-      <li class="paste-dir" onclick="do_action('paste', 'dir')">Paste</li>
-      <li class="rename-dir" onclick="do_action('rename', 'dir')">Rename</li>
-      <li class="download-dir" onclick="do_action('download', 'dir')">Download</li>
-      <li class="delete-dir" onclick="do_action('delete', 'dir')">Delete</li>
-    </ul>
-    <ul class="menu" id="file-menu" style="display:none">
-      <li class="rename-file" onclick="do_action('rename','file')">Rename</li>
-      <li class="cut-file" onclick="do_action('cut','file')">Cut</li>
-      <li class="copy-file" onclick="do_action('copy','file')">Copy</li>
-      <li class="download-file" onclick="do_action('download','file')">Download</li>
-      <li class="delete-file" onclick="do_action('delete','file')">Delete</li>
-      {% if public_url_base %}
-      <li class="copy-public-link-file">Copy public link</li>
-      {% endif %}
-    </ul>
-    <div id="popup">
-      <div class="div1"><img src="{% static 'filemanager/images/close.png' %}" onclick="$('#popup').hide();"/>
-        <div id="heading"></div>
-      </div>
-      <div class="div2"><input id="input" type="text"></div>
-    </div>
-    <div id="status-bar">
-      {% if show_space %}
-      <div class="progress">
-        <div class="bar" id="space_quota"></div>
-      </div>
-      <span id="space_quota_string"></span>
-      {% endif %}
-      <span id="status"></span>
-    </div>
-  </body>
+        <div id="status-bar">
+            {% if show_space %}
+            <div class="progress">
+                <div class="bar" id="space_quota"></div>
+            </div>
+            <span id="space_quota_string"></span>
+            {% endif %}
+            <span id="status"></span>
+        </div>
+    </body>
 </html>
