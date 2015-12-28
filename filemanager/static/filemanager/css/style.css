@@ -39,6 +39,11 @@ main {
     border:1px solid #ADABA9;
     border-radius: 6px;
     overflow-y:auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: flex-start;
 }
 #status-bar{
   margin:0px 15px;
@@ -88,16 +93,14 @@ main {
   color:#2030A0;
 }
 .file{
-  width:82px;
-  height:94px;
-  overflow:hidden;
-  padding: 4px;
-  margin: 9px;
-  float:left;
-  border: 1px solid #AAA;
-  border-radius: 4px;
-  -moz-border-radius: 4px;
-  cursor:pointer;
+    flex: 0 0 82px;
+    height:94px;
+    overflow:hidden;
+    padding: 4px;
+    margin: 9px;
+    border: 1px solid #AAA;
+    border-radius: 4px;
+    cursor:pointer;
 }
 .file:hover {
   background:#dddff0;
