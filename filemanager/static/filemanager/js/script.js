@@ -118,14 +118,14 @@ function show_files(id) {
     });
     $('#content').html('');
     for(var d in dirs) {
-        $('#content').append([
-            '<div class="file" title="' + dirs[d].name + 'onmousedown="rightclick_handle(event, \"' + dirs[d].id + '\",\"dir\");" ondblclick="show_files(' + dirs[d].id + ')">',
-                '<div class="thumbnail">',
-                    '<div style="background-image: url(' + static_url + 'filemanager/images/folder_big.png);" width="100%" height="100%"></div>',
-                '</div>',
-                '<div class="filename">' + dirs[d].name + '</div>',
+        $('#content').append(
+            '<div class="file" title="' + dirs[d].name + 'onmousedown="rightclick_handle(event, \"' + dirs[d].id + '\",\"dir\");" ondblclick="show_files(' + dirs[d].id + ')">' +
+                '<div class="thumbnail">' +
+                    '<div style="background-image: url(' + static_url + 'filemanager/images/folder_big.png);" width="100%" height="100%"></div>' +
+                '</div>' +
+                '<div class="filename">' + dirs[d].name + '</div>' +
             '</div>'
-        ].join('\n'));
+        );
     }
     for(var f in files) {
         var ext = files[f].split('.')[files[f].split('.').length - 1];
@@ -158,19 +158,17 @@ function show_directories(ds) {
         }
         if(empty)
             sign = '';
-        html = [
-            '<div class="directory ' + (id==dir_id ? 'current_directory' : '') + '" id="' + id + '">',
-                '<div class="directory-sign" onclick="change_sign(' + id + ')">' + sign + '</div>',
-                '<div class="directory-image-name" onclick="show_files(' + id + ')" onmousedown="rightclick_handle(event, ' + id + ',\"dir\");">',
-                   '<img class="directory-image" src="' + static_url + 'filemanager/images/' + image + '"/>',
-                   '<div class="directory-name">' + (d === '' ? 'root' : d) + '</div>',
-                '</div>',
-            '</div>'
-        ];
+        html = '<div class="directory ' + (id==dir_id ? 'current_directory' : '') + '" id="' + id + '">' +
+            '<div class="directory-sign" onclick="change_sign(' + id + ')">' + sign + '</div>' +
+                '<div class="directory-image-name" onclick="show_files(' + id + ')" onmousedown="rightclick_handle(event, ' + id + ',\"dir\");">' +
+                   '<img class="directory-image" src="' + static_url + 'filemanager/images/' + image + '"/>' +
+                   '<div class="directory-name">' + (d === '' ? 'root' : d) + '</div>' +
+                '</div>' +
+            '</div>';
         if(ds[d].open == 'yes')
-            html.push("<div style='padding-left:15px'>" + show_directories(ds[d].dirs) + "</div>\n");
+            html += "<div style='padding-left:15px'>" + show_directories(ds[d].dirs) + "</div>\n";
     }
-    return html.join('\n');
+    return html;
 }
 
 function getPosition(e) {
