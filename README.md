@@ -40,28 +40,21 @@ As a filemanager
 
 In urls.py of your app to make filemanager run at url /abc/
 <pre>
-from filemanager import path_end
-urlpatterns = patterns('app',
-   .
-   .
-   (r'^abc/'+path_end,'view'),
+from filemanager import FileManager, path_end
+
+urlpatterns = [
+    .
+    .
+    url(r'^abc/' + path_end,
+        FileManager.as_view(basepath=settings.MEDIA_ROOT),
+        ),
 )
 </pre>
 
-And then write the view in views.py of your app
-<pre>
-from filemanager import FileManager
-from settings import MEDIA_ROOT
-def view(request,path):
-  fm = FileManager(MEDIA_ROOT+'user_folder/')
-  return fm.render(request,path)
-</pre>
 And it is done.
 
 Adding constraints to Filemanager : 
-FileManager \__init__ is defined as
 <pre>
-def __init__(self,basepath,ckeditor_baseurl='',maxfolders=50,maxspace=5*1024,maxfilesize=1*1024,public_url_base=None,extensions=None):
    """
    basepath: User's directory basepath in server.
    maxfolders: Maximum number of total nested folders allowed inside the user directory.
