@@ -62,7 +62,7 @@ function get_dir(id, ds) {
     return dir;
 }
 
-function get_path(id,ds,basepath) {
+function get_path(id, ds, basepath) {
     if(!ds)
         ds = dir_structure;
 
@@ -71,7 +71,7 @@ function get_path(id,ds,basepath) {
 
     path = null;
     for(var d in ds) {
-        if(ds[d].id==id) {
+        if(ds[d].id == id) {
             path = d + '/';
             break;
         }
@@ -94,7 +94,7 @@ function change_sign(id) {
 }
 
 function CKEditorRepy(filename) {
-    var filepath = ckeditor_baseurl+get_path(dir_id)+filename;
+    var filepath = ckeditor_baseurl + get_path(dir_id) + filename;
     window.opener.CKEDITOR.tools.callFunction(CKEditorFuncNum,filepath);
     window.close();
 }
@@ -121,7 +121,7 @@ function show_files(id) {
         $('#content').append(
             '<div class="file" title="' + dirs[d].name + 'onmousedown="rightclick_handle(event, \"' + dirs[d].id + '\",\"dir\");" ondblclick="show_files(' + dirs[d].id + ')">' +
                 '<div class="thumbnail">' +
-                    '<div style="background-image: url(' + static_url + 'filemanager/images/folder_big.png);" width="100%" height="100%"></div>' +
+                    '<div style="background-image: url(' + static_url + 'filemanager/images/folder_big.png); background-size: contain;" width="100%" height="100%"></div>' +
                 '</div>' +
                 '<div class="filename">' + dirs[d].name + '</div>' +
             '</div>'
@@ -133,7 +133,7 @@ function show_files(id) {
             '<div class="file" title="' + files[f] + '"' +
                 'onmousedown="rightclick_handle(event,\"' + files[f] + '\",\"file\");">' +
                 '<div class="thumbnail">' +
-                    '<div style="background-image:url(' + get_path(id).substr(1) + files[f] + ');" width="100%" height="100%"></div></div>' +
+                    '<div style="background-image: url(' + get_path(id).substr(1) + files[f] + '); background-size: contain;" width="100%" height="100%"></div></div>' +
                 '<div class="filename">' + files[f] + '</div>' +
             '</div>\n'
         );
