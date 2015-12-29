@@ -119,7 +119,7 @@ function show_files(id) {
     $('#content').html('');
     for(var d in dirs) {
         $('#content').append(
-            '<div class="file" title="' + dirs[d].name + 'onmousedown="rightclick_handle(event, \"' + dirs[d].id + '\",\"dir\");" ondblclick="show_files(' + dirs[d].id + ')">' +
+            '<div class="file" title="' + dirs[d].name + '" onmousedown="rightclick_handle(event, \'' + dirs[d].id + '\',\'dir\');" ondblclick="show_files(' + dirs[d].id + ')">' +
                 '<div class="thumbnail">' +
                     '<div style="background-image: url(' + static_url + 'filemanager/images/folder_big.png); background-size: contain;" width="100%" height="100%"></div>' +
                 '</div>' +
@@ -131,7 +131,7 @@ function show_files(id) {
         var ext = files[f].split('.')[files[f].split('.').length - 1];
         $('#content').append(
             '<div class="file" title="' + files[f] + '"' +
-                'onmousedown="rightclick_handle(event,\"' + files[f] + '\",\"file\");">' +
+                'onmousedown="rightclick_handle(event,\'' + files[f] + '\',\'file\');">' +
                 '<div class="thumbnail">' +
                     '<div style="background-image: url(' + get_path(id).substr(1) + files[f] + '); background-size: contain;" width="100%" height="100%"></div></div>' +
                 '<div class="filename">' + files[f] + '</div>' +
@@ -160,7 +160,7 @@ function show_directories(ds) {
             sign = '';
         html = '<div class="directory ' + (id==dir_id ? 'current_directory' : '') + '" id="' + id + '">' +
             '<div class="directory-sign" onclick="change_sign(' + id + ')">' + sign + '</div>' +
-                '<div class="directory-image-name" onclick="show_files(' + id + ')" onmousedown="rightclick_handle(event, ' + id + ',\"dir\");">' +
+                '<div class="directory-image-name" onclick="show_files(' + id + ')" onmousedown="rightclick_handle(event, ' + id + ',\'dir\');">' +
                    '<img class="directory-image" src="' + static_url + 'filemanager/images/' + image + '"/>' +
                    '<div class="directory-name">' + (d === '' ? 'root' : d) + '</div>' +
                 '</div>' +
