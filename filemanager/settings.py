@@ -7,3 +7,4 @@ FILEMANAGER_CKEDITOR_JS = getattr(settings, 'FILEMANAGER_CKEDITOR_JS',
                                   'ckeditor/ckeditor.js')
 FILEMANAGER_CHECK_SPACE = getattr(settings, 'FILEMANAGER_CHECK_SPACE', True)
 FILEMANAGER_SHOW_SPACE = getattr(settings, 'FILEMANAGER_SHOW_SPACE', FILEMANAGER_CHECK_SPACE)
+THUMBNAIL_PREFIX = getattr(settings, 'FILENMANAGER_THUMBNAIL_PREFIX', 'thumbs/')
