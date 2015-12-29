@@ -1,16 +1,20 @@
+from io import BytesIO
+import mimetypes
+import os
+import re
+import shutil
+import tarfile
+
 from django import forms
-from django.http import HttpResponse
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.core.files import File
+from django.core.files.storage import default_storage
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils._os import safe_join
 from django.utils.six.moves.urllib.parse import urljoin
 
 from PIL import Image
-
-import mimetypes
-import os
-import shutil
-import re
-import tarfile
 
 from . import settings
 
@@ -214,55 +218,50 @@ class FileManager(object):
         return dir_structure
 
     def media(self, path):
-        ext = path.split('.')[-1]
-        try:
-            mimetypes.init()
-            mimetype = mimetypes.guess_type(path)[0]
-            img = Image.open(safe_join(self.basepath, path))
-            width, height = img.size
-            mx = max(width, height)
-            w, h = width, height
-            if mx > 60:
-                w = width * 60 // mx
-                h = height * 60 // mx
-            img = img.resize((w, h), Image.ANTIALIAS)
-            response = HttpResponse(content_type=mimetype or "image/"+ext)
-            response['Cache-Control'] = 'max-age=3600'
-            img.save(response, mimetype.split('/')[1] if mimetype else ext.upper())
-            return response
-        except Exception:
-            imagepath = urljoin(settings.FILEMANAGER_STATIC_ROOT, 'images/icons/', ext+'.png')
-            if not os.path.exists(imagepath):
-                imagepath = urljoin(settings.FILEMANAGER_STATIC_ROOT, 'images/icons/default.png')
-            img = Image.open(imagepath)
-            width, height = img.size
-            mx = max(width, height)
-            w, h = width, height
-            if mx > 60:
-                w = width * 60 // mx
-                h = height * 60 // mx
-            img = img.resize((w, h), Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/png")
-            response['Cache-Control'] = 'max-age:3600'
-            img.save(response, 'png')
-            return response
+        filename = os.path.basename(path)
+        root, ext = os.path.splitext(filename)
+        mimetype, _ = mimetypes.guess_type(filename)
+        if not path.startswith(settings.THUMBNAIL_PREFIX) and mimetype and mimetype.startswith('image/'):
+                # Generate target filename
+                target_name = os.path.join(settings.THUMBNAIL_PREFIX, path)
+                if not default_storage.exists(target_name):
+                    # Generate the thumbnail
+                    img = Image.open(default_storage.open(path))
+                    w, h = width, height = img.size
+                    mx = max(width, height)
+                    if mx > 60:
+                        w = width * 60 // mx
+                        h = height * 60 // mx
+                    img = img.resize((w, h), Image.ANTIALIAS)
+                    ifile = BytesIO()
+                    # Thanks, SmileyChris
+                    fmt = Image.EXTENSION.get(ext.lower(), 'JPEG')
+                    img.save(ifile, fmt)
+                    default_storage.save(target_name, File(ifile))
+                url = urljoin(settings.settings.MEDIA_URL, default_storage.url(target_name))
+        else:
+            # Use generic image for file type, if we have one
+            try:
+                url = static('filemanager/images/icons/{}.png'.format(ext.strip('.')))
+            except ValueError:
+                url = static('filemanager/images/icons/default.png')
+        return HttpResponseRedirect(url)
 
     def download(self, path, file_or_dir):
+        full_path = safe_join(self.basepath, path)
+        base_name = os.path.basename(path)
         if not re.match(r'[\w\d_ -/]*', path).group(0) == path:
             return HttpResponse('Invalid path')
         if file_or_dir == 'file':
-            filepath = safe_join(self.basepath, path)
-            response = HttpResponse(open(filepath), content_type=mimetypes.guess_type(filepath)[0])
-            response['Content-Length'] = os.path.getsize(filepath)
-            response['Content-Disposition'] = 'attachment; filename=' + path.split('/')[-1]
+            response = HttpResponse(open(full_path), content_type=mimetypes.guess_type(full_path)[0])
+            response['Content-Length'] = os.path.getsize(full_path)
+            response['Content-Disposition'] = 'attachment; filename={}'.format(base_name)
             return response
         elif file_or_dir == 'dir':
-            dirpath = safe_join(self.basepath, path)
-            dirname = os.path.basename(dirpath)
             response = HttpResponse(content_type='application/x-gzip')
-            response['Content-Disposition'] = 'attachment; filename=%s.tar.gz' % dirname
+            response['Content-Disposition'] = 'attachment; filename={}.tar.gz'.format(base_name)
             tarred = tarfile.open(fileobj=response, mode='w:gz')
-            tarred.add(dirpath, arcname=dirname)
+            tarred.add(full_path, arcname=base_name)
             tarred.close()
             return response
 
