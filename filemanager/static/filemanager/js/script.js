@@ -89,7 +89,7 @@ function get_path(id, ds, basepath) {
 
 function change_sign(id) {
     d = get_dir(id);
-    d.open = (d.open == 'yes') ? 'no' : 'yes';
+    d.open = (d.open) ? false : true;
     refresh_dirs();
 }
 
@@ -146,12 +146,12 @@ function show_files(id) {
 function show_directories(ds) {
     var html = [];
     for(var d in ds) {
-        var image = (ds[d].open == 'yes' ? 'opened_folder.png' : 'folder.png');
+        var image = ds[d].open ? 'opened_folder.png' : 'folder.png';
         if(d === '')
             image = 'home_folder.png';
         var id = ds[d].id;
         var sign;
-        sign = (ds[d].open == 'yes' ? '[-]' : '[+]');
+        sign = ds[d].open ? '[-]' : '[+]';
         var empty = true;
         for(var i in ds[d].dirs){
             empty=false; break;
@@ -165,7 +165,7 @@ function show_directories(ds) {
                    '<div class="directory-name">' + (d === '' ? 'root' : d) + '</div>' +
                 '</div>' +
             '</div>';
-        if(ds[d].open == 'yes')
+        if(ds[d].open)
             html += "<div style='padding-left:15px'>" + show_directories(ds[d].dirs) + "</div>\n";
     }
     return html;

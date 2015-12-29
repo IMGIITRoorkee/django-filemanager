@@ -1,4 +1,5 @@
 from io import BytesIO
+import json
 import mimetypes
 import os
 import re
@@ -18,7 +19,7 @@ from PIL import Image
 
 from . import settings
 
-path_end = r'(?P<path>[\w\d_ -/.]*)$'
+path_end = r'(?P<path>[\w -/.]*)$'
 
 ActionChoices = (
     ('upload', 'upload'),
@@ -202,7 +203,14 @@ class FileManager(object):
 
     def directory_structure(self):
         self.idee = 0
-        dir_structure = {'': {'id': self.next_id(), 'open': 'yes', 'dirs': {}, 'files': []}}
+        dir_structure = {
+            '': {
+                'id': self.next_id(),
+                'open': True,
+                'dirs': {},
+                'files': [],
+            },
+        }
         os.chdir(self.basepath)
         for directory, directories, files in os.walk('.'):
             directory_list = directory[1:].split('/')
@@ -211,9 +219,17 @@ class FileManager(object):
             for d in directory_list:
                 current_dir = nextdirs[d]
                 nextdirs = current_dir['dirs']
-            if directory[1:]+'/' == self.current_path:
+            if directory[1:] + '/' == self.current_path:
                 self.current_id = current_dir['id']
-            current_dir['dirs'].update(dict(map(lambda d: (d, {'id': self.next_id(), 'open': 'no', 'dirs': {}, 'files': []}), directories)))
+            current_dir['dirs'].update({
+                d: {
+                    'id': self.next_id(),
+                    'open': False,
+                    'dirs': {},
+                    'files': [],
+                }
+                for d in directories
+            })
             current_dir['files'] = files
         return dir_structure
 
@@ -283,7 +299,7 @@ class FileManager(object):
         else:
             space_consumed = 0
         return render(request, 'filemanager/index.html', {
-            'dir_structure': self.directory_structure(),
+            'dir_structure': json.dumps(self.directory_structure()),
             'messages': [str(m) for m in messages],
             'current_id': self.current_id,
             'CKEditorFuncNum': CKEditorFuncNum,
