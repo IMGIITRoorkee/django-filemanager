@@ -14,6 +14,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils._os import safe_join
 from django.utils.six.moves.urllib.parse import urljoin
+from django.views.generic import View
 
 from PIL import Image
 
@@ -40,21 +41,48 @@ class FileManagerForm(forms.Form):
     file_or_dir = forms.CharField(max_length=4)
 
 
-class FileManager(object):
+class FileManager(View):
     """
     maxspace,maxfilesize in KB
     """
-    idee = 0
+    basepath = None
+    ckeditor_baseurl = ''
+    maxfolders = 50
+    maxspace = 5 * 1024
+    maxfilesize = 1 * 1024
+    extensions = None
+    public_url_base = None
 
-    def __init__(self, basepath, ckeditor_baseurl='', maxfolders=50, maxspace=5*1024, maxfilesize=1*1024,
-                 public_url_base=None, extensions=None):
-        self.basepath = basepath
-        self.ckeditor_baseurl = ckeditor_baseurl
-        self.maxfolders = maxfolders
-        self.maxspace = maxspace
-        self.maxfilesize = maxfilesize
-        self.extensions = extensions
-        self.public_url_base = public_url_base
+    def dispatch(self, request, path):
+        self.idee = 0
+
+        if 'download' in request.GET:
+            return self.download(path, request.GET['download'])
+        if path:
+            return self.media(path)
+        CKEditorFuncNum = request.GET.get('CKEditorFuncNum', '')
+        messages = []
+        self.current_path = '/'
+        self.current_id = 1
+        if request.method == 'POST':
+            form = FileManagerForm(request.POST, request.FILES)
+            if form.is_valid():
+                messages = self.handle_form(form, request.FILES)
+        if settings.FILEMANAGER_CHECK_SPACE:
+            space_consumed = self.get_size(self.basepath)
+        else:
+            space_consumed = 0
+        return render(request, 'filemanager/index.html', {
+            'dir_structure': json.dumps(self.directory_structure()),
+            'messages': [str(m) for m in messages],
+            'current_id': self.current_id,
+            'CKEditorFuncNum': CKEditorFuncNum,
+            'ckeditor_baseurl': self.ckeditor_baseurl,
+            'public_url_base': self.public_url_base,
+            'space_consumed': space_consumed,
+            'max_space': self.maxspace,
+            'show_space': settings.FILEMANAGER_SHOW_SPACE,
+        })
 
     # XXX Replace with with using storage API
     def rename_if_exists(self, folder, filename):
@@ -280,32 +308,3 @@ class FileManager(object):
             tarred.add(full_path, arcname=base_name)
             tarred.close()
             return response
-
-    def render(self, request, path):
-        if 'download' in request.GET:
-            return self.download(path, request.GET['download'])
-        if path:
-            return self.media(path)
-        CKEditorFuncNum = request.GET.get('CKEditorFuncNum', '')
-        messages = []
-        self.current_path = '/'
-        self.current_id = 1
-        if request.method == 'POST':
-            form = FileManagerForm(request.POST, request.FILES)
-            if form.is_valid():
-                messages = self.handle_form(form, request.FILES)
-        if settings.FILEMANAGER_CHECK_SPACE:
-            space_consumed = self.get_size(self.basepath)
-        else:
-            space_consumed = 0
-        return render(request, 'filemanager/index.html', {
-            'dir_structure': json.dumps(self.directory_structure()),
-            'messages': [str(m) for m in messages],
-            'current_id': self.current_id,
-            'CKEditorFuncNum': CKEditorFuncNum,
-            'ckeditor_baseurl': self.ckeditor_baseurl,
-            'public_url_base': self.public_url_base,
-            'space_consumed': space_consumed,
-            'max_space': self.maxspace,
-            'show_space': settings.FILEMANAGER_SHOW_SPACE,
-        })
