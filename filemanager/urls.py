@@ -1,11 +1,14 @@
 from django.conf import settings
 from django.conf.urls import url
+from django.contrib.auth.decorators import user_passes_test
 
 from . import views
 
-path_end = r'(?P<path>[\w -/.]*)$'
+staff_required = user_passes_test(lambda u: u.is_staff)
 
 
 urlpatterns = [
-    url(r'^' + path_end, views.FileManager.as_view(basepath=settings.MEDIA_ROOT)),
+    url(r'^(?P<path>[\w -/.]*)$',
+        staff_required(views.FileManager.as_view(basepath=settings.MEDIA_ROOT))
+        ),
 ]
