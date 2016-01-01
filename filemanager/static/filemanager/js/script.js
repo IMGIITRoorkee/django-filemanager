@@ -32,9 +32,9 @@ function onload() {
         $('#message').html('Hint : Use right click to add,rename or delete files and folders');
 
     $('#ufile').change(function() {
-        form_submit('upload','file');
+        form_submit('upload', 'file');
     });
-    $('#space_quota').width(((space_consumed*100)/max_space).toString()+'%');
+    $('#space_quota').width(((space_consumed * 100) / max_space).toString() + '%');
     $('#space_quota_string').html(get_human_string(space_consumed) + ' of ' + get_human_string(max_space) + ' used');
 }
 
@@ -144,7 +144,7 @@ function show_files(id) {
 }
 
 function show_directories(ds) {
-    var html = [];
+    var html = '';
     for(var d in ds) {
         var image = ds[d].open ? 'opened_folder.png' : 'folder.png';
         if(d === '')
@@ -158,7 +158,7 @@ function show_directories(ds) {
         }
         if(empty)
             sign = '';
-        html = '<div class="directory ' + (id==dir_id ? 'current_directory' : '') + '" id="' + id + '">' +
+        html += '<div class="directory ' + (id==dir_id ? 'current_directory' : '') + '" id="' + id + '">' +
             '<div class="directory-sign" onclick="change_sign(' + id + ')">' + sign + '</div>' +
                 '<div class="directory-image-name" onclick="show_files(' + id + ')" onmousedown="rightclick_handle(event, ' + id + ',\'dir\');">' +
                    '<img class="directory-image" src="' + static_url + 'filemanager/images/' + image + '"/>' +
