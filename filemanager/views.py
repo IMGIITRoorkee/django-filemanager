@@ -20,6 +20,8 @@ from PIL import Image
 
 from . import settings
 
+KB = 1024
+
 ActionChoices = (
     ('upload', 'upload'),
     ('rename', 'rename'),
@@ -46,8 +48,8 @@ class FileManager(View):
     basepath = None
     ckeditor_baseurl = ''
     maxfolders = 50
-    maxspace = 5 * 1024
-    maxfilesize = 1 * 1024
+    maxspace = 5 * KB
+    maxfilesize = 1 * KB
     extensions = None
     public_url_base = None
 
@@ -117,25 +119,26 @@ class FileManager(View):
             messages.append("Invalid folder name : "+name)
             return messages
         if name and file_or_dir == 'file' and (re.search('\.\.', name) or not re.match(r'[\w\d_ -.]+', name).group(0) == name):
-            messages.append("Invalid file name : "+name)
+            messages.append("Invalid file name : " + name)
             return messages
         if not re.match(r'[\w\d_ -/]+', path).group(0) == path:
-            messages.append("Invalid path : "+path)
+            messages.append("Invalid path : " + path)
             return messages
         if action == 'upload':
             for f in files.getlist('ufile'):
                 if re.search('\.\.', f.name) or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name:
                     messages.append("File name is not valid : " + f.name)
-                elif f.size > self.maxfilesize * 1024:
+                elif f.size > self.maxfilesize * KB:
                     messages.append("File size exceeded {} KB : {}".format(self.maxfilesize, f.name))
-                elif (settings.FILEMANAGER_CHECK_SPACE and ((self.get_size(self.basepath) + f.size) > self.maxspace*1024)):
+                elif settings.FILEMANAGER_CHECK_SPACE and (self.get_size(self.basepath) + f.size) > self.maxspace * KB:
                     messages.append("Total Space size exceeded {} KB: {}".format(self.maxspace, f.name))
                 elif self.extensions and len(f.name.split('.')) > 1 and f.name.split('.')[-1] not in self.extensions:
-                    messages.append("File extension not allowed (."+f.name.split('.')[-1]+") : "+f.name)
+                    messages.append("File extension not allowed (.{}) : {}".format(f.name.split('.')[-1], f.name))
                 elif self.extensions and len(f.name.split('.')) == 1 and f.name.split('.')[-1] not in self.extensions:
-                    messages.append("No file extension in uploaded file : "+f.name)
+                    messages.append("No file extension in uploaded file : " + f.name)
                 else:
-                    filepath = safe_join(self.basepath, path, self.rename_if_exists(safe_join(self.basepath, path), f.name))
+                    full_path = safe_join(self.basepath, path)
+                    filepath = safe_join(full_path, self.rename_if_exists(full_path, f.name))
                     with open(filepath, 'wb') as dest:
                         for chunk in f.chunks():
                             dest.write(chunk)
@@ -260,7 +263,8 @@ class FileManager(View):
         filename = os.path.basename(path)
         root, ext = os.path.splitext(filename)
         mimetype, _ = mimetypes.guess_type(filename)
-        if not path.startswith(settings.THUMBNAIL_PREFIX) and mimetype and mimetype.startswith('image/'):
+        if mimetype and mimetype.startswith('image/'):
+            if not path.startswith(settings.THUMBNAIL_PREFIX):
                 # Generate target filename
                 target_name = os.path.join(settings.THUMBNAIL_PREFIX, path)
                 if not default_storage.exists(target_name):
@@ -278,6 +282,8 @@ class FileManager(View):
                     img.save(ifile, fmt)
                     default_storage.save(target_name, File(ifile))
                 url = urljoin(settings.settings.MEDIA_URL, default_storage.url(target_name))
+            else:
+                url = urljoin(settings.settings.MEDIA_URL, default_storage.url(path))
         else:
             # Use generic image for file type, if we have one
             try:
