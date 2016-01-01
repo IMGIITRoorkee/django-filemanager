@@ -100,10 +100,8 @@ class FileManager(View):
 
     def get_size(self, start_path):
         total_size = 0
-        for dirpath, dirnames, filenames in os.walk(start_path):
-            for f in filenames:
-                fp = os.path.join(dirpath, f)
-                total_size += os.path.getsize(fp)
+        for dirpath, dirnames, filenames, dir_fd in os.fwalk(start_path):
+            total_size += sum(os.stat(f, dir_fd=dir_fd).st_size for f in filenames)
         return total_size
 
     def next_id(self):
@@ -114,7 +112,6 @@ class FileManager(View):
         action = form.cleaned_data['action']
         path = form.cleaned_data['path']
         name = form.cleaned_data['name']
-        ufile = form.cleaned_data['ufile']
         file_or_dir = form.cleaned_data['file_or_dir']
         self.current_path = form.cleaned_data['current_path']
         messages = []
@@ -196,16 +193,16 @@ class FileManager(View):
                     messages.append("New file extension didn't match with old file extension")
         elif action == 'delete' and file_or_dir == 'file':
             if path == '/':
-                messages.append('root folder can\'t be deleted')
+                messages.append("root folder can't be deleted")
             else:
                 name = path.split('/')[-1]
                 path = '/'.join(path.split('/')[:-1])
                 try:
                     os.chdir(safe_join(self.basepath, path))
                     os.remove(name)
-                    messages.append('File deleted successfully : '+name)
+                    messages.append('File deleted successfully : ' + name)
                 except:
-                    messages.append('File couldn\'t deleted : '+name)
+                    messages.append("File couldn't deleted : " + name)
         elif action == 'move' or action == 'copy':
             # from path to current_path
             if self.current_path.find(path) == 0:
@@ -226,7 +223,7 @@ class FileManager(View):
                         method(safe_join(self.basepath, path),
                                safe_join(self.basepath, self.current_path, os.path.basename(path)))
                     except:
-                        messages.append('File/folder couldn\'t be moved/copied.')
+                        messages.append("File/folder couldn't be moved/copied.")
         return messages
 
     def directory_structure(self):
