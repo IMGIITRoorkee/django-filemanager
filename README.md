@@ -51,6 +51,8 @@ urlpatterns = [
 
 And it is done.
 
+By default this requires a `staff` user to access.
+
 Adding constraints to Filemanager : 
 <pre>
    """
@@ -62,8 +64,19 @@ Adding constraints to Filemanager :
    public_base_url: A base_url if given there will be an option to copy file url with the given url_base.
    """
 </pre>
+
 Hence one should also pass arguments like maxfolders, maxspace, maxfilesize if one doesn't want to use the default ones.
 If extensions list is not passed then all file-extensions are allowed for upload.
+
+<pre>
+from filemanager.views import FileManager
+
+urlpatterns = [
+    url(r'^filemanager/$', FileManager.as_view(basepath=settings.MEDIA_ROOT, maxspace=400*1024*1024)),
+]
+</pre>
+
+WARNING: The above will have NO permission checks, allowing anyone who can reach that URL free access!
 
 Integrating with CKEditor
 -------------------------
