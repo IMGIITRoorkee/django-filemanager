@@ -40,14 +40,12 @@ As a filemanager
 
 In urls.py of your app to make filemanager run at url /abc/
 <pre>
-from filemanager import FileManager, path_end
+from filemanager.views import FileManager, path_end
 
 urlpatterns = [
     .
     .
-    url(r'^abc/' + path_end,
-        FileManager.as_view(basepath=settings.MEDIA_ROOT),
-        ),
+    url(r'^abc/', include('filemanager.urls')),
 )
 </pre>
 
