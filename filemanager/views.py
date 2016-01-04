@@ -182,23 +182,23 @@ class FileManager(View):
             else:
                 return ["New file extension didn't match with old file extension"]
 
-    def do_dir_delete(self, *, path=None, name=None, **kwargs):
+    def do_dir_delete(self, *, path=None, **kwargs):
         if path == '':
             return ["root folder can't be deleted"]
         else:
-            path, name = os.path.split(path)
+            full_path = safe_join(self.basepath, path)
+            base_path, name = os.path.split(full_path)
             try:
-                os.chdir(safe_join(self.basepath, path))
+                os.chdir(base_path)
                 shutil.rmtree(name)
             except:
                 return ["Folder couldn't deleted : {}".format(name)]
             return ['Folder deleted successfully : {}'.format(name)]
 
-    def do_file_delete(self, *, path=None, name=None, **kwargs):
+    def do_file_delete(self, *, path=None, **kwargs):
         if path == '':
             return ["root folder can't be deleted"]
-        name = path.split('/')[-1]
-        path = '/'.join(path.split('/')[:-1])
+        path, name = os.path.split(path)
         try:
             os.chdir(safe_join(self.basepath, path))
             os.remove(name)
