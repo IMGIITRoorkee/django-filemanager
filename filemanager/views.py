@@ -32,6 +32,14 @@ ActionChoices = (
 )
 
 
+def is_valid_filename(name):
+    return not re.match(r'[^-\w\d \./]', name)
+
+
+def is_valid_dirname(name):
+    return is_valid_filename(name)
+
+
 class FileManagerForm(forms.Form):
     ufile = forms.FileField(required=False)
     action = forms.ChoiceField(choices=ActionChoices)
@@ -50,7 +58,7 @@ class FileManager(View):
     maxfolders = 50
     maxspace = 5 * KB
     maxfilesize = 1 * KB
-    extensions = None
+    extensions = []
     public_url_base = None
 
     def dispatch(self, request, path):
@@ -115,117 +123,128 @@ class FileManager(View):
         file_or_dir = form.cleaned_data['file_or_dir']
         self.current_path = form.cleaned_data['current_path']
         messages = []
-        if name and file_or_dir == 'dir' and not re.match(r'[\w\d_ -]+', name).group(0) == name:
-            messages.append("Invalid folder name : "+name)
-            return messages
-        if name and file_or_dir == 'file' and (re.search('\.\.', name) or not re.match(r'[\w\d_ -.]+', name).group(0) == name):
-            messages.append("Invalid file name : " + name)
-            return messages
-        if not re.match(r'[\w\d_ -/]+', path).group(0) == path:
-            messages.append("Invalid path : " + path)
-            return messages
-        if action == 'upload':
-            for f in files.getlist('ufile'):
-                if re.search('\.\.', f.name) or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name:
-                    messages.append("File name is not valid : " + f.name)
-                elif f.size > self.maxfilesize * KB:
-                    messages.append("File size exceeded {} KB : {}".format(self.maxfilesize, f.name))
-                elif settings.FILEMANAGER_CHECK_SPACE and (self.get_size(self.basepath) + f.size) > self.maxspace * KB:
-                    messages.append("Total Space size exceeded {} KB: {}".format(self.maxspace, f.name))
-                elif self.extensions and len(f.name.split('.')) > 1 and f.name.split('.')[-1] not in self.extensions:
-                    messages.append("File extension not allowed (.{}) : {}".format(f.name.split('.')[-1], f.name))
-                elif self.extensions and len(f.name.split('.')) == 1 and f.name.split('.')[-1] not in self.extensions:
-                    messages.append("No file extension in uploaded file : " + f.name)
-                else:
-                    full_path = safe_join(self.basepath, path)
-                    filepath = safe_join(full_path, self.rename_if_exists(full_path, f.name))
-                    with open(filepath, 'wb') as dest:
-                        for chunk in f.chunks():
-                            dest.write(chunk)
-                    f.close()
-            if len(messages) == 0:
-                messages.append('All files uploaded successfully')
-        elif action == 'add':
-            os.chdir(self.basepath)
-            no_of_folders = len(list(os.walk('.')))
-            if (no_of_folders + 1) <= self.maxfolders:
-                try:
-                    os.chdir(safe_join(self.basepath, path))
-                    os.mkdir(name)
-                    messages.append('Folder created successfully : {}'.format(name))
-                except:
-                    messages.append("Folder couldn't be created : {}".format(name))
+
+        try:
+            handler = getattr(self, 'do_{}_{}' % (file_or_dir, action))
+        except AttributeError:
+            return ['Action not supported!']
+        else:
+            return handler(files=files, **form.cleaned_data)
+
+    def do_file_upload(self, *, path=None, files=None, **kwargs):
+        messages = []
+        for f in files.getlist('ufile'):
+            root, ext = os.path.splitext(f.name)
+            if not is_valid_filename(f.name):
+                messages.append("File name is not valid : " + f.name)
+            elif f.size > self.maxfilesize * KB:
+                messages.append("File size exceeded {} KB : {}".format(self.maxfilesize, f.name))
+            elif settings.FILEMANAGER_CHECK_SPACE and (self.get_size(self.basepath) + f.size) > self.maxspace * KB:
+                messages.append("Total Space size exceeded {} KB: {}".format(self.maxspace, f.name))
+            elif ext and ext.lower() not in extensions:
+                messages.append("File extension not allowed (.{}) : {}".format(ext, f.name))
+            elif not ext and root not in self.extensions:
+                messages.append("No file extension in uploaded file : " + f.name)
             else:
-                messages.append("Folder couldn' be created because maximum number of folders exceeded : {}".format(self.maxfolders))
-        elif action == 'rename' and file_or_dir == 'dir':
-            path, oldname = os.path.split(path)
+                full_path = safe_join(self.basepath, path)
+                filepath = safe_join(full_path, self.rename_if_exists(full_path, f.name))
+                with open(filepath, 'wb') as dest:
+                    for chunk in f.chunks():
+                        dest.write(chunk)
+                f.close()
+        if not messages:
+            messages.append('All files uploaded successfully')
+        return messages
+
+    def do_dir_rename(self, *, path=None, name=None, **kwargs):
+        path, oldname = os.path.split(path)
+        try:
+            os.chdir(safe_join(self.basepath, path))
+            os.rename(oldname, name)
+        except:
+            return ["Folder couldn't renamed to {}".format(name)]
+        return ['Folder renamed successfully from {} to {}'.format(oldname, name)]
+
+    def do_file_rename(self, *, path=None, name=None, **kwargs):
+        path, oldname = os.path.split(path)
+        _, old_ext = os.path.splitext(oldname)
+        _, new_ext = os.path.splitext(name)
+        if old_ext == new_ext:
             try:
                 os.chdir(safe_join(self.basepath, path))
                 os.rename(oldname, name)
-                messages.append('Folder renamed successfully from {} to {}'.format(oldname, name))
             except:
-                messages.append("Folder couldn't renamed to {}".format(name))
-        elif action == 'delete' and file_or_dir == 'dir':
-            if path == '/':
-                messages.append("root folder can't be deleted")
+                return ["File couldn't be renamed to {}".format(name)]
+            return ['File renamed successfully from {} to {}'.format(oldname, name)]
+        else:
+            if old_ext:
+                return ['File extension should be same : .{}'.format(old_ext)]
             else:
-                path, name = os.path.split(path)
-                try:
-                    os.chdir(safe_join(self.basepath, path))
-                    shutil.rmtree(name)
-                    messages.append('Folder deleted successfully : {}'.format(name))
-                except:
-                    messages.append("Folder couldn't deleted : {}".format(name))
-        elif action == 'rename' and file_or_dir == 'file':
-            path, oldname = os.path.split(path)
-            _, old_ext = os.path.splitext(oldname)
-            _, new_ext = os.path.splitext(name)
-            if old_ext == new_ext:
-                try:
-                    os.chdir(safe_join(self.basepath, path))
-                    os.rename(oldname, name)
-                    messages.append('File renamed successfully from {} to {}'.format(oldname, name))
-                except:
-                    messages.append("File couldn't be renamed to {}".format(name))
-            else:
-                if old_ext:
-                    messages.append('File extension should be same : .{}'.format(old_ext))
-                else:
-                    messages.append("New file extension didn't match with old file extension")
-        elif action == 'delete' and file_or_dir == 'file':
-            if path == '/':
-                messages.append("root folder can't be deleted")
-            else:
-                name = path.split('/')[-1]
-                path = '/'.join(path.split('/')[:-1])
-                try:
-                    os.chdir(safe_join(self.basepath, path))
-                    os.remove(name)
-                    messages.append('File deleted successfully : ' + name)
-                except:
-                    messages.append("File couldn't deleted : " + name)
-        elif action == 'move' or action == 'copy':
-            # from path to current_path
-            if self.current_path.find(path) == 0:
-                messages.append('Cannot move/copy to a child folder')
-            else:
-                path = os.path.normpath(path)  # strip trailing slash if any
-                if os.path.exists(safe_join(self.basepath, self.current_path, os.path.basename(path))):
-                    messages.append('ERROR: A file/folder with this name already exists in the destination folder.')
-                else:
-                    if action == 'move':
-                        method = shutil.move
-                    else:
-                        if file_or_dir == 'dir':
-                            method = shutil.copytree
-                        else:
-                            method = shutil.copy
-                    try:
-                        method(safe_join(self.basepath, path),
-                               safe_join(self.basepath, self.current_path, os.path.basename(path)))
-                    except:
-                        messages.append("File/folder couldn't be moved/copied.")
-        return messages
+                return ["New file extension didn't match with old file extension"]
+
+    def do_dir_delete(self, *, path=None, name=None, **kwargs):
+        if path == '/':
+            return ["root folder can't be deleted"]
+        else:
+            path, name = os.path.split(path)
+            try:
+                os.chdir(safe_join(self.basepath, path))
+                shutil.rmtree(name)
+            except:
+                return ["Folder couldn't deleted : {}".format(name)]
+            return ['Folder deleted successfully : {}'.format(name)]
+
+    def do_file_delete(self, *, path=None, name=None, **kwargs):
+        if path == '/':
+            return ["root folder can't be deleted"]
+        else:
+            name = path.split('/')[-1]
+            path = '/'.join(path.split('/')[:-1])
+            try:
+                os.chdir(safe_join(self.basepath, path))
+                os.remove(name)
+            except:
+                return ["File couldn't deleted : {}".format(name)]
+            return ['File deleted successfully : {}'.format(name)]
+
+    def do_dir_add(self, *, path=None, name=None, **kwargs):
+        os.chdir(self.basepath)
+        no_of_folders = len(list(os.walk('.')))
+        if no_of_folders >= self.maxfolders:
+            return ["Folder couldn' be created because maximum number of folders exceeded : {}".format(self.maxfolders)]
+        try:
+            os.chdir(safe_join(self.basepath, path))
+            os.mkdir(name)
+            return ['Folder created successfully : {}'.format(name)]
+        except:
+            return ["Folder couldn't be created : {}".format(name)]
+
+    def do_file_move(self, **kwargs):
+        return self._more_or_copy(method=shutil.move, **kwargs)
+
+    def do_dir_move(self, **kwargs):
+        return self._more_or_copy(method=shutil.move, **kwargs)
+
+    def do_file_copy(self, **kwargs):
+        return self._move_or_copy(method=shutil.copy, **kwargs)
+
+    def do_dir_copy(self, **kwargs):
+        return self._move_or_copy(method=shutil.copytree, **kwargs)
+
+    def _move_or_copy(self, *, method=None, path=None, **kwargs):
+        # from path to current_path
+        if self.current_path.find(path) == 0:
+            return ['Cannot move/copy to a child folder']
+        path = os.path.normpath(path)  # strip trailing slash if any
+        if os.path.exists(safe_join(self.basepath, self.current_path, os.path.basename(path))):
+            return ['ERROR: A file/folder with this name already exists in the destination folder.']
+        try:
+            method(safe_join(self.basepath, path),
+                   safe_join(self.basepath, self.current_path, os.path.basename(path)))
+        except:
+            return ["File/folder couldn't be moved/copied."]
+
+        return []
 
     def directory_structure(self):
         self.idee = 0
