@@ -48,6 +48,9 @@ class FileManagerForm(forms.Form):
     current_path = forms.CharField(max_length=200, required=False)
     file_or_dir = forms.CharField(max_length=4)
 
+    def clean_path(self):
+        return self.cleaned_data['path'].lstrip('/')
+
 
 class FileManager(View):
     """
@@ -118,14 +121,11 @@ class FileManager(View):
 
     def handle_form(self, form, files):
         action = form.cleaned_data['action']
-        path = form.cleaned_data['path']
-        name = form.cleaned_data['name']
         file_or_dir = form.cleaned_data['file_or_dir']
         self.current_path = form.cleaned_data['current_path']
-        messages = []
 
         try:
-            handler = getattr(self, 'do_{}_{}' % (file_or_dir, action))
+            handler = getattr(self, 'do_{}_{}'.format(file_or_dir, action))
         except AttributeError:
             return ['Action not supported!']
         else:
@@ -141,9 +141,9 @@ class FileManager(View):
                 messages.append("File size exceeded {} KB : {}".format(self.maxfilesize, f.name))
             elif settings.FILEMANAGER_CHECK_SPACE and (self.get_size(self.basepath) + f.size) > self.maxspace * KB:
                 messages.append("Total Space size exceeded {} KB: {}".format(self.maxspace, f.name))
-            elif ext and ext.lower() not in extensions:
-                messages.append("File extension not allowed (.{}) : {}".format(ext, f.name))
-            elif not ext and root not in self.extensions:
+            elif ext and self.extensions and ext.lower().lstrip('.') not in self.extensions:
+                messages.append("File extension not allowed ({}) : {}".format(ext, f.name))
+            elif not ext and self.extensions and root not in self.extensions:
                 messages.append("No file extension in uploaded file : " + f.name)
             else:
                 full_path = safe_join(self.basepath, path)
@@ -183,7 +183,7 @@ class FileManager(View):
                 return ["New file extension didn't match with old file extension"]
 
     def do_dir_delete(self, *, path=None, name=None, **kwargs):
-        if path == '/':
+        if path == '':
             return ["root folder can't be deleted"]
         else:
             path, name = os.path.split(path)
@@ -195,17 +195,16 @@ class FileManager(View):
             return ['Folder deleted successfully : {}'.format(name)]
 
     def do_file_delete(self, *, path=None, name=None, **kwargs):
-        if path == '/':
+        if path == '':
             return ["root folder can't be deleted"]
-        else:
-            name = path.split('/')[-1]
-            path = '/'.join(path.split('/')[:-1])
-            try:
-                os.chdir(safe_join(self.basepath, path))
-                os.remove(name)
-            except:
-                return ["File couldn't deleted : {}".format(name)]
-            return ['File deleted successfully : {}'.format(name)]
+        name = path.split('/')[-1]
+        path = '/'.join(path.split('/')[:-1])
+        try:
+            os.chdir(safe_join(self.basepath, path))
+            os.remove(name)
+        except:
+            return ["File couldn't deleted : {}".format(name)]
+        return ['File deleted successfully : {}'.format(name)]
 
     def do_dir_add(self, *, path=None, name=None, **kwargs):
         os.chdir(self.basepath)
@@ -215,9 +214,9 @@ class FileManager(View):
         try:
             os.chdir(safe_join(self.basepath, path))
             os.mkdir(name)
-            return ['Folder created successfully : {}'.format(name)]
         except:
             return ["Folder couldn't be created : {}".format(name)]
+        return ['Folder created successfully : {}'.format(name)]
 
     def do_file_move(self, **kwargs):
         return self._more_or_copy(method=shutil.move, **kwargs)
