@@ -57,7 +57,6 @@ class FileManager(View):
     maxspace,maxfilesize in KB
     """
     basepath = None
-    ckeditor_baseurl = ''
     maxfolders = 50
     maxspace = 5 * KB
     maxfilesize = 1 * KB
@@ -71,7 +70,6 @@ class FileManager(View):
             return self.download(path, request.GET['download'])
         if path:
             return self.media(path)
-        CKEditorFuncNum = request.GET.get('CKEditorFuncNum', '')
         messages = []
         self.current_path = '/'
         self.current_id = 1
@@ -87,8 +85,6 @@ class FileManager(View):
             'dir_structure': json.dumps(self.directory_structure()),
             'messages': [str(m) for m in messages],
             'current_id': self.current_id,
-            'CKEditorFuncNum': CKEditorFuncNum,
-            'ckeditor_baseurl': self.ckeditor_baseurl,
             'public_url_base': self.public_url_base,
             'space_consumed': space_consumed,
             'max_space': self.maxspace,

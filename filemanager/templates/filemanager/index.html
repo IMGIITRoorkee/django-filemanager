@@ -11,8 +11,6 @@
  var dir_structure = {{dir_structure|safe}};
  var messages = {{messages|safe}};
  var dir_id = {{current_id}};
- var ckeditor_baseurl = '{{ ckeditor_baseurl }}';
- var CKEditorFuncNum = {% if CKEditorFuncNum %}{{CKEditorFuncNum}}{% else %}null{%endif%};
  var static_url = '/static/';
  {% if public_url_base %}var public_url_base = '{{public_url_base}}';{% endif %}
  var clipboard = {'empty': true, 'path': 'full path will come here', 'mode': 'cut or copy', 'type': 'file or dir'}

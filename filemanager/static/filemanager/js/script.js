@@ -93,12 +93,6 @@ function change_sign(id) {
     refresh_dirs();
 }
 
-function CKEditorRepy(filename) {
-    var filepath = ckeditor_baseurl + get_path(dir_id) + filename;
-    window.opener.CKEDITOR.tools.callFunction(CKEditorFuncNum,filepath);
-    window.close();
-}
-
 function show_files(id) {
     dir_id = id;
     var dirs = [];
@@ -230,9 +224,6 @@ function rightclick_handle(e,id,type) {
                     }
                 });
             }
-        }
-        if(e.button === 0 && e.detail >= 2 && CKEditorFuncNum){
-            CKEditorRepy(id);
         }
     }
 }
