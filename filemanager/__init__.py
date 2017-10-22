@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext
 from django.core.servers.basehttp import FileWrapper
+from django.utils.text import slugify
 from django import forms
 from PIL import Image
 import settings
@@ -12,6 +13,7 @@ import os
 import shutil
 import re
 import tarfile
+import json
 
 path_end = r'(?P<path>[\w\d_ -/.]*)$'
 
@@ -28,7 +30,7 @@ class FileManagerForm(forms.Form):
   ufile = forms.FileField(required=False)
   action = forms.ChoiceField(choices=ActionChoices)
   path = forms.CharField(max_length=200,required=False)
-  name = forms.CharField(max_length=32,required=False)
+  name = forms.CharField(max_length=256,required=False)
   current_path = forms.CharField(max_length=200,required=False)
   file_or_dir = forms.CharField(max_length=4)
 
@@ -96,24 +98,27 @@ class FileManager(object):
     if name and file_or_dir == 'file' and (re.search('\.\.',name) or not re.match(r'[\w\d_ -.]+',name).group(0) == name):
       messages.append("Invalid file name : "+name)
       return messages
-    if not re.match(r'[\w\d_ -/]+',path).group(0) == path:
+    if not re.match(r'[\w\d_ -/]+',path, re.UNICODE).group(0) == path:
       messages.append("Invalid path : "+path)
       return messages
     if action == 'upload':
       for f in files.getlist('ufile'):
-        if re.search('\.\.',f.name) or not re.match('[\w\d_ -/.]+',f.name).group(0) == f.name:
-          messages.append("File name is not valid : "+f.name)
+        fname, fextension = os.path.splitext(f.name)
+        filename = u'%s.%s' % (slugify(fname), slugify(fextension))
+
+        if re.search('\.\.',f.name) or not re.match('[\w\d_ -/.]+',filename, re.UNICODE).group(0) == filename:
+          messages.append("File name is not valid : "+filename)
         elif f.size > self.maxfilesize*1024:
-          messages.append("File size exceeded "+str(self.maxfilesize)+" KB : "+f.name)
+          messages.append("File size exceeded "+str(self.maxfilesize)+" KB : "+filename)
         elif (settings.FILEMANAGER_CHECK_SPACE and
              ((self.get_size(self.basepath)+f.size) > self.maxspace*1024)):
-          messages.append("Total Space size exceeded "+str(self.maxspace)+" KB : "+f.name)
-        elif self.extensions and len(f.name.split('.'))>1 and f.name.split('.')[-1] not in self.extensions:
-            messages.append("File extension not allowed (."+f.name.split('.')[-1]+") : "+f.name)
-        elif self.extensions and len(f.name.split('.'))==1 and f.name.split('.')[-1] not in self.extensions:
-            messages.append("No file extension in uploaded file : "+f.name)
+          messages.append("Total Space size exceeded "+str(self.maxspace)+" KB : "+filename)
+        elif self.extensions and len(filename.split('.'))>1 and filename.split('.')[-1] not in self.extensions:
+            messages.append("File extension not allowed (."+filename.split('.')[-1]+") : "+filename)
+        elif self.extensions and len(filename.split('.'))==1 and filename.split('.')[-1] not in self.extensions:
+            messages.append("No file extension in uploaded file : "+filename)
         else:
-          filepath = self.basepath+path+self.rename_if_exists(self.basepath+path,f.name)
+          filepath = self.basepath+path+self.rename_if_exists(self.basepath+path,filename)
           with open(filepath,'w') as dest:
             for chunk in f.chunks():
               dest.write(chunk)
@@ -202,13 +207,13 @@ class FileManager(object):
             method(self.basepath+path, self.basepath+self.current_path+os.path.basename(path))
           except:
             messages.append('File/folder couldn\'t be moved/copied.')
-    return messages
+    return json.dumps(messages)
 
   def directory_structure(self):
     self.idee = 0
     dir_structure = {'':{'id':self.next_id(),'open':'yes','dirs':{},'files':[]}}
     os.chdir(self.basepath)
-    for directory,directories,files in os.walk('.'):
+    for directory,directories,files in os.walk(u'.'):
       directory_list = directory[1:].split('/')
       current_dir = None
       nextdirs = dir_structure
@@ -219,7 +224,7 @@ class FileManager(object):
         self.current_id = current_dir['id']
       current_dir['dirs'].update(dict(map(lambda d:(d,{'id':self.next_id(),'open':'no','dirs':{},'files':[]}),directories)))
       current_dir['files'] = files
-    return dir_structure
+    return json.dumps(dir_structure)
 
   def media(self,path):
     ext = path.split('.')[-1]
@@ -294,7 +299,7 @@ class FileManager(object):
         space_consumed = 0
     return render(request, 'filemanager/index.html', {
         'dir_structure': self.directory_structure(),
-        'messages':map(str,messages),
+        'messages':messages,
         'current_id':self.current_id,
         'CKEditorFuncNum':CKEditorFuncNum,
         'ckeditor_baseurl':self.ckeditor_baseurl,
