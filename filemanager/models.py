@@ -10,7 +10,7 @@ class CKEditorField(models.TextField):
                 for the same use as of CKEditorWidget.
         """
         self.config = kwargs.pop('config', {})
-        self.filemanager_url = kwargs.pop('filemanager_url', '')
+        self.filemanager_url = kwargs.pop('filemanager_url', u'')
         super(CKEditorField, self).__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):

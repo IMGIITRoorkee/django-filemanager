@@ -40,7 +40,7 @@ class FileManager(object):
     def __init__(
         self,
         basepath,
-        ckeditor_baseurl='',
+        ckeditor_baseurl=u'',
         maxfolders=50,
         maxspace=5*1024,
         maxfilesize=1*1024,
@@ -307,7 +307,7 @@ class FileManager(object):
     def directory_structure(self):
         self.idee = 0
         dir_structure = {
-            '': {
+            u'': {
                 'id': self.next_id(),
                 'open': 'yes',
                 'dirs': {},
@@ -421,7 +421,7 @@ class FileManager(object):
             return self.download(path, request.GET['download'])
         if path:
             return self.media(path)
-        CKEditorFuncNum = request.GET.get('CKEditorFuncNum', '')
+        CKEditorFuncNum = request.GET.get('CKEditorFuncNum', u'')
         messages = []
         self.current_path = '/'
         self.current_id = 1
