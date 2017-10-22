@@ -15,10 +15,10 @@ def filemanager_config(url):
 
 class CKEditorWidget(forms.Textarea):
     def __init__(self, attrs={}, config={}, filemanager_url=''):
-        """ config : CKEditor config
+        ''' config : CKEditor config
             filemanager_url : for user to 'browse server'
             In config : toolbar = 'Basic'/'Standard'/'Full'
-        """
+        '''
         default = {
             'toolbar': 'Standard',
             'height': 250,
@@ -37,12 +37,12 @@ class CKEditorWidget(forms.Textarea):
 
     def render(self, name, value, attrs=None):
         rendered = super(CKEditorWidget, self).render(name, value, attrs)
-        div = "<div style='height:20px'></div>"
+        div = '<div style='height:20px'></div>'
         return rendered + mark_safe(
             div
-            + u"""<script type="text/javascript">
+            + u'''<script type="text/javascript">
                     document.addEventListener('DOMContentLoaded', function() {
                       CKEDITOR.replace('%s',%s);
                     }, false);
-                  </script>""" % (attrs['id'], self.config)
+                  </script>''' % (attrs['id'], self.config)
         )
