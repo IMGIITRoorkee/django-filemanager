@@ -76,7 +76,7 @@ class FileManager(object):
                     full_path = folder + name + '.' + str(i) + extension
                     if not os.path.exists(full_path):
                         break
-                return name + '.' + str(i) + extension
+                return "{0}.{1}{2}".format(name, str(i), extension)
         else:
             return file
 
