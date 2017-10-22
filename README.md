@@ -1,5 +1,6 @@
 Filemanager
 ===========
+![travis](https://img.shields.io/travis/IMGIITRoorkee/django-filemanager.svg?) [![Requirements Status](https://requires.io/github/eraymitrani/django-filemanager/requirements.svg?branch=master)](https://requires.io/github/eraymitrani/django-filemanager/requirements/?branch=master)
 
 Filemanager is a simple Django app to browse files on server.
 You can also integrate this filemanager with CKEditor.
@@ -8,13 +9,6 @@ Screenshot
 ----------
 
 ![screenshot](docs/images/filemanager-screenshot.png)
-
-Badges
-------
-Travis ![travis](https://img.shields.io/travis/IMGIITRoorkee/django-filemanager.svg?)
-
-Requires [![Requirements Status](https://requires.io/github/eraymitrani/django-filemanager/requirements.svg?branch=master)](https://requires.io/github/eraymitrani/django-filemanager/requirements/?branch=master)
-
 
 Quick start
 -----------
