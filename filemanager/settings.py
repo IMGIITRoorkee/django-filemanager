@@ -5,7 +5,7 @@ from django.conf import settings
 FILEMANAGER_STATIC_ROOT = getattr(
     settings,
     'FILEMANAGER_STATIC_ROOT',
-    os.path.dirname(os.path.abspath(__file__)) + '/static/filemanager/',
+    os.path.dirname('{}/static/filemanager/'.format(os.path.abspath(__file__))), 
 )
 FILEMANAGER_CKEDITOR_JS = getattr(
     settings,
