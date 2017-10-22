@@ -106,7 +106,7 @@ class FileManager(object):
             and not re.match(r'[\w\d_ -]+', name).group(0) == name
         )
         if invalid_folder_name:
-            messages.append("Invalid folder name : " + name)
+            messages.append('{0}{1}'.format("Invalid folder name : ", name)
             return messages
 
         invalid_file_name = (
