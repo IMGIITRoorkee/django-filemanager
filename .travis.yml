@@ -3,7 +3,6 @@ sudo: false
 cache: pip
 
 python:
-  - "3.4"
   - "2.7"
 
 env:
@@ -21,7 +20,7 @@ install:
 
 before_script:
   - ./runflake8
-  - if [[ $TRAVIS_PYTHON_VERSION == 3* ]]; then ./runisort; fi
+  - ./runisort
 
 # command to run tests, e.g. python setup.py test
 script:
