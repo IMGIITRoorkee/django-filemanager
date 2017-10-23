@@ -194,8 +194,10 @@ class FileManager(object):
                     os.chdir(self.basepath + path)
                     os.mkdir(name)
                     messages.append('Folder created successfully : ' + name)
-                except:
+                except OSError:
                     messages.append('Folder couldn\'t be created : ' + name)
+                except Exception as e:
+                    messages.append('Unexpected error : ' + e)
             else:
                 messages.append(
                     'Folder couldn\' be created because maximum number of '
@@ -214,8 +216,10 @@ class FileManager(object):
                     + ' to '
                     + name
                 )
-            except:
+            except OSError:
                 messages.append('Folder couldn\'t renamed to ' + name)
+            except Exception as e:
+                messages.append('Unexpected error : ' + e)
         elif action == 'delete' and file_or_dir == 'dir':
             if path == '/':
                 messages.append('root folder can\'t be deleted')
@@ -226,8 +230,10 @@ class FileManager(object):
                     os.chdir(self.basepath + path)
                     shutil.rmtree(name)
                     messages.append('Folder deleted successfully : ' + name)
-                except:
+                except OSError:
                     messages.append('Folder couldn\'t deleted : ' + name)
+                except Exception as e:
+                    messages.append('Unexpected error : ' + e)
         elif action == 'rename' and file_or_dir == 'file':
             oldname = path.split('/')[-1]
             old_ext = (
@@ -247,8 +253,10 @@ class FileManager(object):
                         + ' to '
                         + name
                     )
-                except:
+                except OSError:
                     messages.append('File couldn\'t be renamed to ' + name)
+                except Exception as e:
+                    messages.append('Unexpected error : ' + e)
             else:
                 if old_ext:
                     messages.append(
@@ -270,8 +278,10 @@ class FileManager(object):
                     os.chdir(self.basepath + path)
                     os.remove(name)
                     messages.append('File deleted successfully : ' + name)
-                except:
+                except OSError:
                     messages.append('File couldn\'t deleted : ' + name)
+                except Exception as e:
+                    messages.append('Unexpected error : ' + e)
         elif action == 'move' or action == 'copy':
             # from path to current_path
             if self.current_path.find(path) == 0:
@@ -298,10 +308,12 @@ class FileManager(object):
                             method = shutil.copy
                     try:
                         method(self.basepath + path, filename)
-                    except:
+                    except OSError:
                         messages.append(
                             'File/folder couldn\'t be moved/copied.'
                         )
+                    except Exception as e:
+                        messages.append('Unexpected error : ' + e)
         return messages
 
     def directory_structure(self):
