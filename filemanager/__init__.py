@@ -106,7 +106,7 @@ class FileManager(object):
             and not re.match(r'[\w\d_ -]+', name).group(0) == name
         )
         if invalid_folder_name:
-            messages.append("Invalid folder name : " + name)
+            messages.append('Invalid folder name : ' + name)
             return messages
 
         invalid_file_name = (
@@ -118,12 +118,12 @@ class FileManager(object):
             )
         )
         if invalid_file_name:
-            messages.append("Invalid file name : " + name)
+            messages.append('Invalid file name : ' + name)
             return messages
 
         invalid_path = not re.match(r'[\w\d_ -/]+', path).group(0) == path
         if invalid_path:
-            messages.append("Invalid path : " + path)
+            messages.append('Invalid path : ' + path)
             return messages
         if action == 'upload':
             for f in files.getlist('ufile'):
@@ -132,12 +132,12 @@ class FileManager(object):
                     or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name
                 )
                 if file_name_invalid:
-                    messages.append("File name is not valid : " + f.name)
+                    messages.append('File name is not valid : ' + f.name)
                 elif f.size > self.maxfilesize*1024:
                     messages.append(
-                        "File size exceeded "
+                        'File size exceeded '
                         + str(self.maxfilesize)
-                        + " KB : "
+                        + ' KB : '
                         + f.name
                     )
                 elif (
@@ -148,9 +148,9 @@ class FileManager(object):
                         )
                 ):
                     messages.append(
-                        "Total Space size exceeded "
+                        'Total Space size exceeded '
                         + str(self.maxspace)
-                        + " KB : "
+                        + ' KB : '
                         + f.name
                     )
                 elif (
@@ -159,9 +159,9 @@ class FileManager(object):
                         and f.name.split('.')[-1] not in self.extensions
                 ):
                         messages.append(
-                            "File extension not allowed (."
+                            'File extension not allowed (.'
                             + f.name.split('.')[-1]
-                            + ") : "
+                            + ') : '
                             + f.name
                         )
                 elif (
@@ -171,7 +171,7 @@ class FileManager(object):
                         not in self.extensions
                 ):
                         messages.append(
-                            "No file extension in uploaded file : "
+                            'No file extension in uploaded file : '
                             + f.name
                         )
                 else:
@@ -356,7 +356,7 @@ class FileManager(object):
                 w = width*60/mx
                 h = height*60/mx
             img = img.resize((w, h), Image.ANTIALIAS)
-            response = HttpResponse(content_type=mimetype or "image/" + ext)
+            response = HttpResponse(content_type=mimetype or 'image/' + ext)
             response['Cache-Control'] = 'max-age=3600'
             img.save(
                 response,
@@ -383,7 +383,7 @@ class FileManager(object):
                 w = width*60/mx
                 h = height*60/mx
             img = img.resize((w, h), Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/png")
+            response = HttpResponse(content_type='image/png')
             response['Cache-Control'] = 'max-age:3600'
             img.save(response, 'png')
             return response
