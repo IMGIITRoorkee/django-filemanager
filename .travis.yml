@@ -26,5 +26,5 @@ before_script:
 script:
   - coverage run --source==filemanager runtests.py
 
-after_success:
-  coveralls
+# after_success:
+#  coveralls
