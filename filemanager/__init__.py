@@ -66,17 +66,17 @@ class FileManager(object):
             if file.find('.') == -1:
                 # no extension
                 for i in range(1000):
-                    if not os.path.exists("{}{}.{}".format(folder, file, str(i)):
+                    if not os.path.exists('{}{}.{}'.format(folder, file, str(i)):
                         break
                 return "{}.{}".format(file, str(i)  
             else:
                 extension = file[file.rfind('.'):]
                 name = file[:file.rfind('.')]
                 for i in range(1000):
-                    full_path = "{}{}.{}{}".format(folder, name, str(i), extension)
+                    full_path = '{}{}.{}{}'.format(folder, name, str(i), extension)
                     if not os.path.exists(full_path):
                         break
-                return "{}.{}{}".format(name, str(i), extension)
+                return '{}.{}{}'.format(name, str(i), extension)
         else:
             return file
 
@@ -106,7 +106,7 @@ class FileManager(object):
             and not re.match(r'[\w\d_ -]+', name).group(0) == name
         )
         if invalid_folder_name:
-            messages.append("Invalid folder name : {}".format(name))
+            messages.append('Invalid folder name : {}'.format(name))
             return messages
 
         invalid_file_name = (
@@ -118,12 +118,12 @@ class FileManager(object):
             )
         )
         if invalid_file_name:
-            messages.append("Invalid file name : {}".format(name))
+            messages.append('Invalid file name : {}'.format(name))
             return messages
 
         invalid_path = not re.match(r'[\w\d_ -/]+', path).group(0) == path
         if invalid_path:
-            messages.append("Invalid path : {}".format(path))
+            messages.append('Invalid path : {}'.format(path))
             return messages
         if action == 'upload':
             for f in files.getlist('ufile'):
@@ -132,9 +132,9 @@ class FileManager(object):
                     or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name
                 )
                 if file_name_invalid:
-                    messages.append("File name is not valid : {}".format(f.name))
+                    messages.append('File name is not valid : {}'.format(f.name))
                 elif f.size > self.maxfilesize*1024:
-                    messages.append("File size exceeded {} KB : {}".format(str(self.maxfilesize), f.name))
+                    messages.append('File size exceeded {} KB : {}'.format(str(self.maxfilesize), f.name))
                 elif (
                         settings.FILEMANAGER_CHECK_SPACE and
                         (
@@ -142,22 +142,22 @@ class FileManager(object):
                             > self.maxspace*1024
                         )
                 ):
-                    messages.append("Total Space size exceeded {} KB: {}".format(str(self.maxspace), f.name))
+                    messages.append('Total Space size exceeded {} KB: {}'.format(str(self.maxspace), f.name))
                 elif (
                         self.extensions
                         and len(f.name.split('.')) > 1
                         and f.name.split('.')[-1] not in self.extensions
                 ):
-                        messages.append("File extension not allowed (.{}) : {}".format(f.name.split('.)[-1], f.name))
+                        messages.append('File extension not allowed (.{}) : {}'.format(f.name.split('.)[-1], f.name))
                 elif (
                         self.extensions
                         and len(f.name.split('.')) == 1
                         and f.name.split('.')[-1]
                         not in self.extensions
                 ):
-                        messages.append("No file extension in uploaded file: {}".format(f.name))
+                        messages.append('No file extension in uploaded file: {}'.format(f.name))
                 else:
-                    filepath = "{}{}{}".format(self.basepath, path, f.name")
+                    filepath = '{}{}{}'.format(self.basepath, path, f.name)
                     with open(filepath, 'w') as dest:
                         for chunk in f.chunks():
                             dest.write(chunk)
@@ -317,14 +317,10 @@ class FileManager(object):
             )
             return response
         except Exception:
-            imagepath = (
-                settings.FILEMANAGER_STATIC_ROOT
-                + 'images/icons/'
-                + ext
-                + '.png'
-            )
+            imagepath = '{}images/icon/{}.png'.format(settings.FILEMANAGER_STATIC_ROOT, ext)
+
             if not os.path.exists(imagepath):
-                imagepath = ('{}images/icons/default.png'.format(settings.FILEMANAGER_STATIC_ROOT))
+                imagepath = '{}images/icons/default.png'.format(settings.FILEMANAGER_STATIC_ROOT)
             img = Image.open(imagepath)
             width, height = img.size
             mx = max([width, height])
