@@ -5,4 +5,3 @@ mimetypes
 os
 shutil
 re
-tarfile
