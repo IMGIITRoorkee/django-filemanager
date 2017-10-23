@@ -61,22 +61,22 @@ class FileManager(object):
 
     def rename_if_exists(self, folder, file):
         if folder[-1] != os.sep:
-            folder = folder + os.sep
-        if os.path.exists(folder + file):
+            folder = '{}{}'.format(folder, os.sep)
+        if os.path.exists('{}{}'.format(folder, file)):
             if file.find('.') == -1:
                 # no extension
                 for i in range(1000):
-                    if not os.path.exists(folder + file + '.' + str(i)):
+                    if not os.path.exists('{}{}.{}'.format(folder, file, str(i))):
                         break
-                return file + '.' + str(i)
+                return '{}.{}'.format(file, str(i))
             else:
                 extension = file[file.rfind('.'):]
                 name = file[:file.rfind('.')]
                 for i in range(1000):
-                    full_path = folder + name + '.' + str(i) + extension
+                    full_path = '{}{}.{}{}'.format(folder, name, str(i), extension)
                     if not os.path.exists(full_path):
                         break
-                return name + '.' + str(i) + extension
+                return '{}.{}{}'.format(name, str(i), extension)
         else:
             return file
 
@@ -106,7 +106,7 @@ class FileManager(object):
             and not re.match(r'[\w\d_ -]+', name).group(0) == name
         )
         if invalid_folder_name:
-            messages.append("Invalid folder name : " + name)
+            messages.append("Invalid folder name : {}".format(name))
             return messages
 
         invalid_file_name = (
@@ -118,12 +118,12 @@ class FileManager(object):
             )
         )
         if invalid_file_name:
-            messages.append("Invalid file name : " + name)
+            messages.append("Invalid file name : {}".format(name))
             return messages
 
         invalid_path = not re.match(r'[\w\d_ -/]+', path).group(0) == path
         if invalid_path:
-            messages.append("Invalid path : " + path)
+            messages.append("Invalid path : {}".format(path))
             return messages
         if action == 'upload':
             for f in files.getlist('ufile'):
@@ -132,13 +132,10 @@ class FileManager(object):
                     or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name
                 )
                 if file_name_invalid:
-                    messages.append("File name is not valid : " + f.name)
+                    messages.append("File name is not valid : {}".format(f.name))
                 elif f.size > self.maxfilesize*1024:
                     messages.append(
-                        "File size exceeded "
-                        + str(self.maxfilesize)
-                        + " KB : "
-                        + f.name
+                        "File size exceeded {} KB : {}".format(str(self.maxfilesize), f.name)
                     )
                 elif (
                         settings.FILEMANAGER_CHECK_SPACE and
@@ -148,10 +145,7 @@ class FileManager(object):
                         )
                 ):
                     messages.append(
-                        "Total Space size exceeded "
-                        + str(self.maxspace)
-                        + " KB : "
-                        + f.name
+                        "Total Space size exceeded {} KB : {}".format(str(self.maxspace), f.name)
                     )
                 elif (
                         self.extensions
@@ -159,10 +153,7 @@ class FileManager(object):
                         and f.name.split('.')[-1] not in self.extensions
                 ):
                         messages.append(
-                            "File extension not allowed (."
-                            + f.name.split('.')[-1]
-                            + ") : "
-                            + f.name
+                            "File extension not allowed (.{}) : {}".format(f.name.split('.')[-1], f.name)
                         )
                 elif (
                         self.extensions
@@ -171,8 +162,7 @@ class FileManager(object):
                         not in self.extensions
                 ):
                         messages.append(
-                            "No file extension in uploaded file : "
-                            + f.name
+                            "No file extension in uploaded file : {}".format(f.name)
                         )
                 else:
                     filepath = (
@@ -193,16 +183,14 @@ class FileManager(object):
                 try:
                     os.chdir(self.basepath + path)
                     os.mkdir(name)
-                    messages.append('Folder created successfully : ' + name)
+                    messages.append('Folder created successfully : {}'.format(name))
                 except OSError:
-                    messages.append('Folder couldn\'t be created : ' + name)
+                    messages.append('Folder couldn\'t be created : {}'.format(name))
                 except Exception as e:
-                    messages.append('Unexpected error : ' + e)
+                    messages.append('Unexpected error : {}'.format(e))
             else:
                 messages.append(
-                    'Folder couldn\' be created because maximum number of '
-                    + 'folders exceeded : '
-                    + str(self.maxfolders)
+                    'Folder couldn\' be created because maximum number of folders exceeded : {}'.format(str(self.maxfolders))
                 )
         elif action == 'rename' and file_or_dir == 'dir':
             oldname = path.split('/')[-2]
@@ -211,15 +199,12 @@ class FileManager(object):
                 os.chdir(self.basepath + path)
                 os.rename(oldname, name)
                 messages.append(
-                    'Folder renamed successfully from '
-                    + oldname
-                    + ' to '
-                    + name
+                    'Folder renamed successfully from {} to {}'.format(oldname, name)
                 )
             except OSError:
-                messages.append('Folder couldn\'t renamed to ' + name)
+                messages.append('Folder couldn\'t renamed to {}'.format(name))
             except Exception as e:
-                messages.append('Unexpected error : ' + e)
+                messages.append('Unexpected error : {}'.format(e))
         elif action == 'delete' and file_or_dir == 'dir':
             if path == '/':
                 messages.append('root folder can\'t be deleted')
@@ -229,11 +214,11 @@ class FileManager(object):
                 try:
                     os.chdir(self.basepath + path)
                     shutil.rmtree(name)
-                    messages.append('Folder deleted successfully : ' + name)
+                    messages.append('Folder deleted successfully : {}'.format(name))
                 except OSError:
-                    messages.append('Folder couldn\'t deleted : ' + name)
+                    messages.append('Folder couldn\'t deleted : {}'.format(name))
                 except Exception as e:
-                    messages.append('Unexpected error : ' + e)
+                    messages.append('Unexpected error : {}'.format(e))
         elif action == 'rename' and file_or_dir == 'file':
             oldname = path.split('/')[-1]
             old_ext = (
@@ -248,25 +233,20 @@ class FileManager(object):
                     os.chdir(self.basepath + path)
                     os.rename(oldname, name)
                     messages.append(
-                        'File renamed successfully from '
-                        + oldname
-                        + ' to '
-                        + name
+                        'File renamed successfully from {} to {}'.format(oldname, name)
                     )
                 except OSError:
-                    messages.append('File couldn\'t be renamed to ' + name)
+                    messages.append('File couldn\'t be renamed to {}'.format(name))
                 except Exception as e:
-                    messages.append('Unexpected error : ' + e)
+                    messages.append('Unexpected error : {}'.format(e))
             else:
                 if old_ext:
                     messages.append(
-                        'File extension should be same : .'
-                        + old_ext
+                        'File extension should be same : .{}'.format(old_ext)
                     )
                 else:
                     messages.append(
-                        'New file extension didn\'t match with old file'
-                        + ' extension'
+                        'New file extension didn\'t match with old file extension'
                     )
         elif action == 'delete' and file_or_dir == 'file':
             if path == '/':
@@ -277,11 +257,11 @@ class FileManager(object):
                 try:
                     os.chdir(self.basepath + path)
                     os.remove(name)
-                    messages.append('File deleted successfully : ' + name)
+                    messages.append('File deleted successfully : {}'.format(name))
                 except OSError:
-                    messages.append('File couldn\'t deleted : ' + name)
+                    messages.append('File couldn\'t deleted : {}'.format(name))
                 except Exception as e:
-                    messages.append('Unexpected error : ' + e)
+                    messages.append('Unexpected error : {}'.format(e))
         elif action == 'move' or action == 'copy':
             # from path to current_path
             if self.current_path.find(path) == 0:
@@ -360,7 +340,7 @@ class FileManager(object):
         try:
             mimetypes.init()
             mimetype = mimetypes.guess_type(path)[0]
-            img = Image.open(self.basepath + '/' + path)
+            img = Image.open('{}/{}'.format(self.basepath, path))
             width, height = img.size
             mx = max([width, height])
             w, h = width, height
@@ -368,7 +348,7 @@ class FileManager(object):
                 w = width*60/mx
                 h = height*60/mx
             img = img.resize((w, h), Image.ANTIALIAS)
-            response = HttpResponse(content_type=mimetype or "image/" + ext)
+            response = HttpResponse(content_type=mimetype or "image/{}".format(ext))
             response['Cache-Control'] = 'max-age=3600'
             img.save(
                 response,
@@ -377,15 +357,11 @@ class FileManager(object):
             return response
         except Exception:
             imagepath = (
-                settings.FILEMANAGER_STATIC_ROOT
-                + 'images/icons/'
-                + ext
-                + '.png'
+                '{}images/icons/{}.png'.format(settings.FILEMANAGER_STATIC_ROOT, ext)
             )
             if not os.path.exists(imagepath):
                 imagepath = (
-                    settings.FILEMANAGER_STATIC_ROOT
-                    + 'images/icons/default.png'
+                    '{}images/icons/default.png'.format(settings.FILEMANAGER_STATIC_ROOT)
                 )
             img = Image.open(imagepath)
             width, height = img.size
@@ -404,7 +380,7 @@ class FileManager(object):
         if not re.match(r'[\w\d_ -/]*', path).group(0) == path:
             return HttpResponse('Invalid path')
         if file_or_dir == 'file':
-            filepath = self.basepath + '/' + path
+            filepath = '{}/{}'.format(self.basepath, path)
             wrapper = FileWrapper(open(filepath))
             response = HttpResponse(
                 wrapper,
@@ -412,11 +388,11 @@ class FileManager(object):
             )
             response['Content-Length'] = os.path.getsize(filepath)
             response['Content-Disposition'] = (
-                'attachment; filename=' + path.split('/')[-1]
+                'attachment; filename={}'.format(path.split('/')[-1])
             )
             return response
         elif file_or_dir == 'dir':
-            dirpath = self.basepath + '/' + path
+            dirpath = '{}/{}'.format(self.basepath, path)
             dirname = dirpath.split('/')[-2]
             response = HttpResponse(content_type='application/x-gzip')
             response['Content-Disposition'] = (
