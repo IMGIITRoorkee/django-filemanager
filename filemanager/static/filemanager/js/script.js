@@ -184,7 +184,28 @@ function getPosition(e) {
 
 function rightclick_handle(e,id,type)
 { var c = getPosition(e);
-  if(type == 'dir'){
+  if(type == 'dom'){
+    if(e.button==0){
+    $('#dom-menu').hide();
+    }
+    if(e.button==2){
+    selected_dir_id = id;
+    $('#dom-menu').css('left',c.x+8);
+    $('#dom-menu').css('top',c.y+2);
+    if(clipboard['empty'])
+    {
+      $('#paste-dir').hide();
+      $('#paste-dir').next().hide();
+    }
+    else
+    {
+      $('#paste-dir').show();
+      $('#paste-dir').next().show();
+    }
+    $('#dom-menu').show();
+    }
+  }
+  else if(type == 'dir'){
     if(e.button==2){
     selected_dir_id = id;
     $('#dir-menu').css('left',c.x+8);
@@ -232,6 +253,28 @@ function rightclick_handle(e,id,type)
 
 function do_action(act,t)
 {var heading;
+ if(t == 'dom')
+ {if(act == 'add')heading = "Enter name of the new folder";
+  if(act == 'paste')
+  { 
+    if(clipboard['empty'])
+    {
+      alert('Clipboard is empty. Please cut/copy the required file.');
+      return;
+    }
+    if(get_path(dir_id).indexOf(clipboard['path']) == 0)
+    {
+      alert('Cannot move/copy to the folder');
+      return;
+    }
+    if(window.confirm(clipboard['mode']+' '+clipboard['path'] + ' to '+get_path(dir_id)))
+    {
+        form_submit(clipboard['mode'],'', '');
+    }
+    return;
+  }
+  if(act == 'download'){window.open('.'+get_path(selected_dir_id)+'?download=dir');return;}
+ }
  if(t == 'dir')
  {if(act == 'add')heading = "Enter name of sub-folder";
   if(act == 'rename')heading = "Enter new name of folder";
@@ -303,7 +346,8 @@ function form_submit(action,type,value){
     $('#action').val('copy');
     $('#file_or_dir').val(clipboard['type']);
     $('#path').val(clipboard['path']);
-    $('#current_path').val(get_path(selected_dir_id));
+    if(type == 'dom')$('#current_path').val(get_path(dir_id));
+    if(type == 'dir')$('#current_path').val(get_path(selected_dir_id));
     $('#submit').trigger('click');
   }
   if(action == 'upload')
@@ -311,7 +355,8 @@ function form_submit(action,type,value){
     $('#submit').trigger('click');
   }
   else if(action == 'add')
-  { $('#path').val(get_path(selected_dir_id));
+  { if(type == 'dom')$('#path').val(get_path(dir_id));
+    if(type == 'dir')$('#path').val(get_path(selected_dir_id));
     $('#action').val('add');
     $('#name').val(value);
     $('#submit').trigger('click');
