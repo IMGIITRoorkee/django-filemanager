@@ -68,7 +68,7 @@ class FileManager(object):
                 for i in range(1000):
                     if not os.path.exists('{}{}.{}'.format(folder, file, str(i))):
                         break
-                return "{}.{}".format(file, str(i) )
+                return "{}.{}".format(file, str(i))
             else:
                 extension = file[file.rfind('.'):]
                 name = file[:file.rfind('.')]
@@ -148,7 +148,8 @@ class FileManager(object):
                         and len(f.name.split('.')) > 1
                         and f.name.split('.')[-1] not in self.extensions
                 ):
-                        messages.append('File extension not allowed (.{}) : {}'.format(f.name.split('.')[-1], f.name))
+                        name_split = f.name.split('.')[-1]
+                        messages.append('File extension not allowed (.{}) : {}'.format(name_split, f.name))
                 elif (
                         self.extensions
                         and len(f.name.split('.')) == 1
@@ -240,9 +241,10 @@ class FileManager(object):
                 messages.append('Cannot move/copy to a child folder')
             else:
                 path = os.path.normpath(path)  # strip trailing slash if any
-                filename = ('{}{}{}'.format(self.basepath, self.current_path, os.pathname(path))
+                filename = ('{}{}{}'.format(self.basepath, self.current_path, os.pathname(path)))
                 if os.path.exists(filename):
-                    messages.append('ERROR: A file/folder with this name already exists in the destination folder.')
+                    file_exists_error = 'A file/folder with this name already exists in the destination folder.'
+                    messages.append('ERROR: {}'.format(file_exists_error))
                 else:
                     if action == 'move':
                         method = shutil.move
