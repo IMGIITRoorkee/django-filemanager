@@ -7,3 +7,4 @@
 - Eray Mitrani
 - Erwin Junge
 - Bryan Chan
+- Shaddy Garg
