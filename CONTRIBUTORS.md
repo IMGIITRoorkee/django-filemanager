@@ -6,3 +6,4 @@
 - Rohith Asrk
 - Eray Mitrani
 - Erwin Junge
+- Bryan Chan
