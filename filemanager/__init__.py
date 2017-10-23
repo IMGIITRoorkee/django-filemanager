@@ -66,9 +66,9 @@ class FileManager(object):
             if file.find('.') == -1:
                 # no extension
                 for i in range(1000):
-                    if not os.path.exists('{}{}.{}'.format(folder, file, str(i)):
+                    if not os.path.exists('{}{}.{}'.format(folder, file, str(i))):
                         break
-                return "{}.{}".format(file, str(i)  
+                return "{}.{}".format(file, str(i) )
             else:
                 extension = file[file.rfind('.'):]
                 name = file[:file.rfind('.')]
@@ -148,7 +148,7 @@ class FileManager(object):
                         and len(f.name.split('.')) > 1
                         and f.name.split('.')[-1] not in self.extensions
                 ):
-                        messages.append('File extension not allowed (.{}) : {}'.format(f.name.split('.)[-1], f.name))
+                        messages.append('File extension not allowed (.{}) : {}'.format(f.name.split('.')[-1], f.name))
                 elif (
                         self.extensions
                         and len(f.name.split('.')) == 1
