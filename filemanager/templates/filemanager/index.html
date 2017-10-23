@@ -48,8 +48,19 @@
    <div id="message">
    </div>
    </div>
-   <div id="content">
+   <div id="content" onmousedown='rightclick_handle(event,dir_id,"dom");'>
    </div>
+  </div>
+ </div>
+ <div id="dom-menu" class="menu" style="display:none">
+  <div id="add-dir" class="menu-option" onclick="do_action('add','dom')">
+   <img src="{{STATIC_URL}}filemanager/images/add_folder.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Create Folder</span>
+  </div><hr>
+  <div id="paste-dir" class="menu-option" onclick="do_action('paste','dom')">
+   <img src="{{STATIC_URL}}filemanager/images/paste.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Paste</span>
+  </div><hr>
+  <div id="download-dir" class="menu-option" onclick="do_action('download','dom')">
+   <img src="{{STATIC_URL}}filemanager/images/download.png" style="width:16px;height:16px" width="100%" height="100%"/><span>Download</span>
   </div>
  </div>
  <div id="dir-menu" class="menu" style="display:none">
