@@ -309,7 +309,7 @@ class FileManager(object):
                 w = width*60/mx
                 h = height*60/mx
             img = img.resize((w, h), Image.ANTIALIAS)
-            response = HttpResponse(content_type=mimetype or 'image/' + ext)
+            response = HttpResponse(content_type=mimetype or 'image/{}'.format(ext))
             response['Cache-Control'] = 'max-age=3600'
             img.save(
                 response,
