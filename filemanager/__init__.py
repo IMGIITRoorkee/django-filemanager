@@ -243,8 +243,8 @@ class FileManager(object):
                 path = os.path.normpath(path)  # strip trailing slash if any
                 filename = ('{}{}{}'.format(self.basepath, self.current_path, os.pathname(path)))
                 if os.path.exists(filename):
-                    file_exists_error = 'A file/folder with this name already exists in the destination folder.'
-                    messages.append('ERROR: {}'.format(file_exists_error))
+                    fe_error = 'A file/folder with this name already exists in the destination folder.'
+                    messages.append('ERROR: {}'.format(fe_error))
                 else:
                     if action == 'move':
                         method = shutil.move
