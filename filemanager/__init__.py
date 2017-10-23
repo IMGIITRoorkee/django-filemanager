@@ -62,21 +62,21 @@ class FileManager(object):
     def rename_if_exists(self, folder, file):
         if folder[-1] != os.sep:
             folder = folder + os.sep
-        if os.path.exists(folder + file):
+        if os.path.exists("{}{}".format(folder, file)):
             if file.find('.') == -1:
                 # no extension
                 for i in range(1000):
-                    if not os.path.exists(folder + file + '.' + str(i)):
+                    if not os.path.exists('{}{}.{}'.format(folder, file, str(i))):
                         break
-                return file + '.' + str(i)
+                return "{}.{}".format(file, str(i))
             else:
                 extension = file[file.rfind('.'):]
                 name = file[:file.rfind('.')]
                 for i in range(1000):
-                    full_path = folder + name + '.' + str(i) + extension
+                    full_path = '{}{}.{}{}'.format(folder, name, str(i), extension)
                     if not os.path.exists(full_path):
                         break
-                return name + '.' + str(i) + extension
+                return '{}.{}{}'.format(name, str(i), extension)
         else:
             return file
 
@@ -106,7 +106,7 @@ class FileManager(object):
             and not re.match(r'[\w\d_ -]+', name).group(0) == name
         )
         if invalid_folder_name:
-            messages.append("Invalid folder name : " + name)
+            messages.append('Invalid folder name : {}'.format(name))
             return messages
 
         invalid_file_name = (
@@ -118,12 +118,12 @@ class FileManager(object):
             )
         )
         if invalid_file_name:
-            messages.append("Invalid file name : " + name)
+            messages.append('Invalid file name : {}'.format(name))
             return messages
 
         invalid_path = not re.match(r'[\w\d_ -/]+', path).group(0) == path
         if invalid_path:
-            messages.append("Invalid path : " + path)
+            messages.append('Invalid path : {}'.format(path))
             return messages
         if action == 'upload':
             for f in files.getlist('ufile'):
@@ -132,14 +132,9 @@ class FileManager(object):
                     or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name
                 )
                 if file_name_invalid:
-                    messages.append("File name is not valid : " + f.name)
+                    messages.append('File name is not valid : {}'.format(f.name))
                 elif f.size > self.maxfilesize*1024:
-                    messages.append(
-                        "File size exceeded "
-                        + str(self.maxfilesize)
-                        + " KB : "
-                        + f.name
-                    )
+                    messages.append('File size exceeded {} KB : {}'.format(str(self.maxfilesize), f.name))
                 elif (
                         settings.FILEMANAGER_CHECK_SPACE and
                         (
@@ -147,39 +142,23 @@ class FileManager(object):
                             > self.maxspace*1024
                         )
                 ):
-                    messages.append(
-                        "Total Space size exceeded "
-                        + str(self.maxspace)
-                        + " KB : "
-                        + f.name
-                    )
+                    messages.append('Total Space size exceeded {} KB: {}'.format(str(self.maxspace), f.name))
                 elif (
                         self.extensions
                         and len(f.name.split('.')) > 1
                         and f.name.split('.')[-1] not in self.extensions
                 ):
-                        messages.append(
-                            "File extension not allowed (."
-                            + f.name.split('.')[-1]
-                            + ") : "
-                            + f.name
-                        )
+                        name_split = f.name.split('.')[-1]
+                        messages.append('File extension not allowed (.{}) : {}'.format(name_split, f.name))
                 elif (
                         self.extensions
                         and len(f.name.split('.')) == 1
                         and f.name.split('.')[-1]
                         not in self.extensions
                 ):
-                        messages.append(
-                            "No file extension in uploaded file : "
-                            + f.name
-                        )
+                        messages.append('No file extension in uploaded file: {}'.format(f.name))
                 else:
-                    filepath = (
-                        self.basepath
-                        + path
-                        + self.rename_if_exists(self.basepath + path, f.name)
-                    )
+                    filepath = '{}{}{}'.format(self.basepath, path, f.name)
                     with open(filepath, 'w') as dest:
                         for chunk in f.chunks():
                             dest.write(chunk)
@@ -193,9 +172,9 @@ class FileManager(object):
                 try:
                     os.chdir(self.basepath + path)
                     os.mkdir(name)
-                    messages.append('Folder created successfully : ' + name)
+                    messages.append('Folder created successfully : {}'.format(name))
                 except:
-                    messages.append('Folder couldn\'t be created : ' + name)
+                    messages.append('Folder couldn\'t be created : '.format(name))
             else:
                 messages.append(
                     'Folder couldn\' be created because maximum number of '
@@ -208,14 +187,9 @@ class FileManager(object):
             try:
                 os.chdir(self.basepath + path)
                 os.rename(oldname, name)
-                messages.append(
-                    'Folder renamed successfully from '
-                    + oldname
-                    + ' to '
-                    + name
-                )
+                messages.append('Folder renamed successfully from {} to {}'.format(oldname, name))
             except:
-                messages.append('Folder couldn\'t renamed to ' + name)
+                messages.append('Folder couldn\'t renamed to {}'.format(name))
         elif action == 'delete' and file_or_dir == 'dir':
             if path == '/':
                 messages.append('root folder can\'t be deleted')
@@ -225,9 +199,9 @@ class FileManager(object):
                 try:
                     os.chdir(self.basepath + path)
                     shutil.rmtree(name)
-                    messages.append('Folder deleted successfully : ' + name)
+                    messages.append('Folder deleted successfully : {}'.format(name))
                 except:
-                    messages.append('Folder couldn\'t deleted : ' + name)
+                    messages.append('Folder couldn\'t deleted : {}'.format(name))
         elif action == 'rename' and file_or_dir == 'file':
             oldname = path.split('/')[-1]
             old_ext = (
@@ -241,25 +215,14 @@ class FileManager(object):
                 try:
                     os.chdir(self.basepath + path)
                     os.rename(oldname, name)
-                    messages.append(
-                        'File renamed successfully from '
-                        + oldname
-                        + ' to '
-                        + name
-                    )
+                    messages.append('File renamed successfully from {} to {}'.format(oldname, name))
                 except:
-                    messages.append('File couldn\'t be renamed to ' + name)
+                    messages.append('File couldn\'t be renamed to {}'.format(name))
             else:
                 if old_ext:
-                    messages.append(
-                        'File extension should be same : .'
-                        + old_ext
-                    )
+                    messages.append('File extension should be same : .{}'.format(old_ext))
                 else:
-                    messages.append(
-                        'New file extension didn\'t match with old file'
-                        + ' extension'
-                    )
+                    messages.append('New file extension didn\'t match with old file extension')
         elif action == 'delete' and file_or_dir == 'file':
             if path == '/':
                 messages.append('root folder can\'t be deleted')
@@ -269,25 +232,19 @@ class FileManager(object):
                 try:
                     os.chdir(self.basepath + path)
                     os.remove(name)
-                    messages.append('File deleted successfully : ' + name)
+                    messages.append('File deleted successfully : {}'.format(name))
                 except:
-                    messages.append('File couldn\'t deleted : ' + name)
+                    messages.append('File couldn\'t deleted : {}'.format(name))
         elif action == 'move' or action == 'copy':
             # from path to current_path
             if self.current_path.find(path) == 0:
                 messages.append('Cannot move/copy to a child folder')
             else:
                 path = os.path.normpath(path)  # strip trailing slash if any
-                filename = (
-                    self.basepath
-                    + self.current_path
-                    + os.path.basename(path)
-                )
+                filename = ('{}{}{}'.format(self.basepath, self.current_path, os.pathname(path)))
                 if os.path.exists(filename):
-                    messages.append(
-                        'ERROR: A file/folder with this name already exists in'
-                        + ' the destination folder.'
-                    )
+                    fe_error = 'A file/folder with this name already exists in the destination folder.'
+                    messages.append('ERROR: {}'.format(fe_error))
                 else:
                     if action == 'move':
                         method = shutil.move
@@ -299,9 +256,7 @@ class FileManager(object):
                     try:
                         method(self.basepath + path, filename)
                     except:
-                        messages.append(
-                            'File/folder couldn\'t be moved/copied.'
-                        )
+                        messages.append('File/folder couldn\'t be moved/copied.')
         return messages
 
     def directory_structure(self):
@@ -356,7 +311,7 @@ class FileManager(object):
                 w = width*60/mx
                 h = height*60/mx
             img = img.resize((w, h), Image.ANTIALIAS)
-            response = HttpResponse(content_type=mimetype or "image/" + ext)
+            response = HttpResponse(content_type=mimetype or 'image/{}'.format(ext))
             response['Cache-Control'] = 'max-age=3600'
             img.save(
                 response,
@@ -364,17 +319,10 @@ class FileManager(object):
             )
             return response
         except Exception:
-            imagepath = (
-                settings.FILEMANAGER_STATIC_ROOT
-                + 'images/icons/'
-                + ext
-                + '.png'
-            )
+            imagepath = '{}images/icon/{}.png'.format(settings.FILEMANAGER_STATIC_ROOT, ext)
+
             if not os.path.exists(imagepath):
-                imagepath = (
-                    settings.FILEMANAGER_STATIC_ROOT
-                    + 'images/icons/default.png'
-                )
+                imagepath = '{}images/icons/default.png'.format(settings.FILEMANAGER_STATIC_ROOT)
             img = Image.open(imagepath)
             width, height = img.size
             mx = max([width, height])
@@ -383,7 +331,7 @@ class FileManager(object):
                 w = width*60/mx
                 h = height*60/mx
             img = img.resize((w, h), Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/png")
+            response = HttpResponse(content_type='image/png')
             response['Cache-Control'] = 'max-age:3600'
             img.save(response, 'png')
             return response

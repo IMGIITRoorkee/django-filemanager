@@ -40,9 +40,9 @@ class CKEditorWidget(forms.Textarea):
         div = "<div style='height:20px'></div>"
         return rendered + mark_safe(
             div
-            + u"""<script type="text/javascript">
+            + u'''<script type='text/javascript'>
                     document.addEventListener('DOMContentLoaded', function() {
                       CKEDITOR.replace('%s',%s);
                     }, false);
-                  </script>""" % (attrs['id'], self.config)
+                  </script>''' % (attrs['id'], self.config)
         )
