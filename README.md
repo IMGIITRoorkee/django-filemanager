@@ -62,7 +62,7 @@ And it is done.
 Adding constraints to Filemanager : 
 FileManager \__init__ is defined as
 <pre>
-def __init__(self, basepath, ckeditor_baseurl='', maxfolders=50, maxspace=5*1024, maxfilesize=1*1024, public_url_base=None, extensions=None):
+def __init__(self, basepath, ckeditor_baseurl=u'', maxfolders=50, maxspace=5*1024, maxfilesize=1*1024, public_url_base=None, extensions=None):
    """
    basepath: User's directory basepath in server.
    maxfolders: Maximum number of total nested folders allowed inside the user directory.

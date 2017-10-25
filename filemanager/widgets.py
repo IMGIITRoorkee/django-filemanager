@@ -14,7 +14,7 @@ def filemanager_config(url):
 
 
 class CKEditorWidget(forms.Textarea):
-    def __init__(self, attrs={}, config={}, filemanager_url=''):
+    def __init__(self, attrs={}, config={}, filemanager_url=u''):
         """ config : CKEditor config
             filemanager_url : for user to 'browse server'
             In config : toolbar = 'Basic'/'Standard'/'Full'
