@@ -175,10 +175,11 @@ class FileManager(object):
                             + f.name
                         )
                 else:
+                    filename = f.name.replace(' ', '_')  # replace spaces to prevent fs error
                     filepath = (
                         self.basepath
                         + path
-                        + self.rename_if_exists(self.basepath + path, f.name)
+                        + self.rename_if_exists(self.basepath + path, filename)
                     )
                     with open(filepath, 'w') as dest:
                         for chunk in f.chunks():
