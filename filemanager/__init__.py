@@ -165,10 +165,12 @@ class FileManager(object):
                             "No file extension in uploaded file : {}".format(f.name)
                         )
                 else:
+                    path_with_bath = '{}{}'.format(self.basepath, path)
                     filepath = (
-                        self.basepath
-                        + path
-                        + self.rename_if_exists(self.basepath + path, f.name)
+                        '{}{}'.format(
+                            path_with_bath,
+                            self.rename_if_exists(path_with_bath, f.name)
+                        )
                     )
                     with open(filepath, 'w') as dest:
                         for chunk in f.chunks():
@@ -181,7 +183,7 @@ class FileManager(object):
             no_of_folders = len(list(os.walk('.')))
             if (no_of_folders + 1) <= self.maxfolders:
                 try:
-                    os.chdir(self.basepath + path)
+                    os.chdir('{}{}'.format(self.basepath, path))
                     os.mkdir(name)
                     messages.append('Folder created successfully : {}'.format(name))
                 except OSError:
@@ -200,7 +202,7 @@ class FileManager(object):
             oldname = path.split('/')[-2]
             path = '/'.join(path.split('/')[:-2])
             try:
-                os.chdir(self.basepath + path)
+                os.chdir('{}{}'.format(self.basepath, path))
                 os.rename(oldname, name)
                 messages.append(
                     'Folder renamed successfully from {} to {}'.format(oldname, name)
@@ -216,7 +218,7 @@ class FileManager(object):
                 name = path.split('/')[-2]
                 path = '/'.join(path.split('/')[:-2])
                 try:
-                    os.chdir(self.basepath + path)
+                    os.chdir('{}{}'.format(self.basepath, path))
                     shutil.rmtree(name)
                     messages.append('Folder deleted successfully : {}'.format(name))
                 except OSError:
@@ -234,7 +236,7 @@ class FileManager(object):
             if old_ext == new_ext:
                 path = '/'.join(path.split('/')[:-1])
                 try:
-                    os.chdir(self.basepath + path)
+                    os.chdir('{}{}'.format(self.basepath, path))
                     os.rename(oldname, name)
                     messages.append(
                         'File renamed successfully from {} to {}'.format(oldname, name)
@@ -259,7 +261,7 @@ class FileManager(object):
                 name = path.split('/')[-1]
                 path = '/'.join(path.split('/')[:-1])
                 try:
-                    os.chdir(self.basepath + path)
+                    os.chdir('{}{}'.format(self.basepath, path))
                     os.remove(name)
                     messages.append('File deleted successfully : {}'.format(name))
                 except OSError:
@@ -273,14 +275,18 @@ class FileManager(object):
             else:
                 path = os.path.normpath(path)  # strip trailing slash if any
                 filename = (
-                    self.basepath
-                    + self.current_path
-                    + os.path.basename(path)
+                    '{}{}{}'.format(
+                        self.basepath,
+                        self.current_path,
+                        os.path.basename(path)
+                    )
                 )
                 if os.path.exists(filename):
                     messages.append(
-                        'ERROR: A file/folder with this name already exists in'
-                        + ' the destination folder.'
+                        '{}{}'.format(
+                            'ERROR: A file/folder with this name already ',
+                            'exists in the destination folder.'
+                        )
                     )
                 else:
                     if action == 'move':
@@ -291,13 +297,13 @@ class FileManager(object):
                         else:
                             method = shutil.copy
                     try:
-                        method(self.basepath + path, filename)
+                        method('{}{}'.format(self.basepath, path), filename)
                     except OSError:
                         messages.append(
                             'File/folder couldn\'t be moved/copied.'
                         )
                     except Exception as e:
-                        messages.append('Unexpected error : ' + e)
+                        messages.append('Unexpected error : {}'.format(e))
         return messages
 
     def directory_structure(self):
@@ -318,7 +324,7 @@ class FileManager(object):
             for d in directory_list:
                 current_dir = nextdirs[d]
                 nextdirs = current_dir['dirs']
-            if directory[1:] + '/' == self.current_path:
+            if '{}{}'.format(directory[1:], '/') == self.current_path:
                 self.current_id = current_dir['id']
             current_dir['dirs'].update(
                 dict(
