@@ -165,11 +165,12 @@ class FileManager(object):
                             "No file extension in uploaded file : {}".format(f.name)
                         )
                 else:
+                    filename = f.name.replace(' ', '_')  # replace spaces to prevent fs error
                     path_with_bath = '{}{}'.format(self.basepath, path)
                     filepath = (
                         '{}{}'.format(
                             path_with_bath,
-                            self.rename_if_exists(path_with_bath, f.name)
+                            self.rename_if_exists(path_with_bath, filename)
                         )
                     )
                     with open(filepath, 'w') as dest:
