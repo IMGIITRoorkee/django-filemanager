@@ -190,9 +190,11 @@ class FileManager(object):
                     messages.append('Unexpected error : {}'.format(e))
             else:
                 messages.append(
-                    '{}{}{}'.format('Folder couldn\' be created ',
-                                    'because maximum number of folders exceeded : ',
-                                    str(self.maxfolders))
+                    '{}{}{}'.format(
+                        'Folder couldn\' be created ',
+                        'because maximum number of folders exceeded : ',
+                        str(self.maxfolders),
+                        )
                 )
         elif action == 'rename' and file_or_dir == 'dir':
             oldname = path.split('/')[-2]
