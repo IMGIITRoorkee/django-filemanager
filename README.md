@@ -1,5 +1,6 @@
 Filemanager
 ===========
+![travis](https://img.shields.io/travis/IMGIITRoorkee/django-filemanager.svg?) [![Requirements Status](https://requires.io/github/eraymitrani/django-filemanager/requirements.svg?branch=master)](https://requires.io/github/eraymitrani/django-filemanager/requirements/?branch=master) [![Coverage Status](https://coveralls.io/repos/github/IMGIITRoorkee/django-filemanager/badge.svg)](https://coveralls.io/github/IMGIITRoorkee/django-filemanager)
 
 Filemanager is a simple Django app to browse files on server.
 You can also integrate this filemanager with CKEditor.
@@ -7,9 +8,7 @@ You can also integrate this filemanager with CKEditor.
 Screenshot
 ----------
 
-![screenshot](https://raw2.github.com/esjey/django-filemanager/master/filemanager-screenshot.png)
-
-
+![screenshot](docs/images/filemanager-screenshot.png)
 
 Quick start
 -----------
@@ -41,10 +40,11 @@ As a filemanager
 In urls.py of your app to make filemanager run at url /abc/
 <pre>
 from filemanager import path_end
-urlpatterns = patterns('app',
+from views import view
+urlpatterns = patterns(
    .
    .
-   (r'^abc/'+path_end,'view'),
+   url(r'^abc/'+path_end, view, name='view'),
 )
 </pre>
 
@@ -52,16 +52,17 @@ And then write the view in views.py of your app
 <pre>
 from filemanager import FileManager
 from settings import MEDIA_ROOT
-def view(request,path):
-  fm = FileManager(MEDIA_ROOT+'user_folder/')
-  return fm.render(request,path)
+
+def view(request, path):
+  fm = FileManager(MEDIA_ROOT + 'user_folder/')
+  return fm.render(request, path)
 </pre>
 And it is done.
 
 Adding constraints to Filemanager : 
 FileManager \__init__ is defined as
 <pre>
-def __init__(self,basepath,ckeditor_baseurl='',maxfolders=50,maxspace=5*1024,maxfilesize=1*1024,public_url_base=None,extensions=None):
+def __init__(self, basepath, ckeditor_baseurl='', maxfolders=50, maxspace=5*1024, maxfilesize=1*1024, public_url_base=None, extensions=None):
    """
    basepath: User's directory basepath in server.
    maxfolders: Maximum number of total nested folders allowed inside the user directory.
@@ -84,6 +85,7 @@ Then in CKEditorField or CKEditorWidget pass the url of filemanager as argument 
 For example in models.py :
 <pre>
 from filemanager.models import CKEditorField
+
 class MyModel(models.Model):
   .
   .
