@@ -37,7 +37,7 @@ class FileManager(object):
   maxspace,maxfilesize in KB
   """
   idee = 0
-  def __init__(self,basepath,ckeditor_baseurl='',maxfolders=50,maxspace=5*1024,maxfilesize=1*1024,public_url_base=None,extensions=None):
+  def __init__(self,basepath,ckeditor_baseurl='',maxfolders=50,maxspace=20*1024,maxfilesize=5*1024,public_url_base=None,extensions=None):
     if basepath[-1] == '/':
       basepath = basepath[:-1]
     if ckeditor_baseurl and ckeditor_baseurl[-1] == '/':
