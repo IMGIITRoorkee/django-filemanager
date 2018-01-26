@@ -328,9 +328,10 @@ class FileManager(object):
                         + os.path.basename(path)
                     )
                     zip_ref = zipfile.ZipFile(filename, 'r')
-                    zip_ref.extractall()
+                    zip_ref.extractall(self.basepath + self.current_path)
                     zip_ref.close()
                 except Exception as e:
+                    print e
                     messages.append('ERROR : ' + str(e))	
 
         return messages
