@@ -9,6 +9,7 @@ import os
 import shutil
 import re
 import tarfile
+import zipfile
 
 path_end = r'(?P<path>[\w\d_ -/.]*)$'
 
@@ -19,6 +20,7 @@ ActionChoices = (
     ('add', 'add'),
     ('move', 'move'),
     ('copy', 'copy'),
+	('unzip', 'unzip'),
 )
 
 
@@ -92,6 +94,7 @@ class FileManager(object):
         return self.idee
 
     def handle_form(self, form, files):
+        print "Debug"
         action = form.cleaned_data['action']
         path = form.cleaned_data['path']
         name = form.cleaned_data['name']
@@ -314,6 +317,21 @@ class FileManager(object):
                         )
                     except Exception as e:
                         messages.append('Unexpected error : ' + e)
+        elif action == 'unzip':
+            print "Debug"
+            if file_or_dir == 'dir':
+			    messages.append('Cannot unzip a directory')
+            else:
+                path = os.path.normpath(path)  # strip trailing slash if any
+                filename = (
+                    self.basepath
+                    + self.current_path
+                    + os.path.basename(path)
+                )
+                zip_ref = zipfile.ZipFile(filename, 'r')
+                zip_ref.extractall()
+                zip_ref.close()	
+
         return messages
 
     def directory_structure(self):

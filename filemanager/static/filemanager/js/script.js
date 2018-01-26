@@ -308,6 +308,7 @@ function do_action(act,t)
   if(act == 'copy-public-link'){window.prompt("Public URL(Ctrl+C to copy to clipboard):",public_url_base+get_path(dir_id)+selected_file);return;}
   if(act == 'cut'){ clipboard['empty']=false;clipboard['type']='file';clipboard['path']=get_path(dir_id)+selected_file;clipboard['mode']='cut';return;}
   if(act == 'copy'){ clipboard['empty']=false;clipboard['type']='file';clipboard['path']=get_path(dir_id)+selected_file;clipboard['mode']='copy';return;}
+  if(act == 'unzip'){clipboard['empty']=false;clipboard['type']='file';clipboard['path']=get_path(dir_id)+selected_file;clipboard['mode']='unzip';form_submit(clipboard['mode'],clipboard['type'],'');return;}
  }
  action = act;
  type = t;
@@ -372,6 +373,13 @@ function form_submit(action,type,value){
   { if(type == 'dir')$('#path').val(get_path(selected_dir_id));
     if(type == 'file')$('#path').val(get_path(dir_id)+selected_file);
     $('#action').val('delete');
+    $('#submit').trigger('click');
+  }
+  else if(action == 'unzip')
+  { console.log("kjdshd");
+  	// if(type == 'dir')$('#path').val(get_path(selected_dir_id));
+    if(type == 'file')$('#path').val(get_path(dir_id)+selected_file);
+    $('#action').val('unzip');
     $('#submit').trigger('click');
   }
 }
