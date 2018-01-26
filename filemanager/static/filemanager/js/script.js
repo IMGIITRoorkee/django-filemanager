@@ -28,7 +28,7 @@ function onload(){
   size();
   refresh_dirs();
   show_files(dir_id);
-  $('body').bind('click',function(e){$('#dir-menu').hide();$('#file-menu').hide();});
+  $('body').bind('click',function(e){$('#dir-menu').hide();$('.unzip-menu').hide();$('#file-menu').hide();});
   if(messages.length>0){
     $('#message').html(messages[0]);
     setTimeout("$('#message').html('Hint : Use right click to add, rename or delete files and folders');",10000);
@@ -226,6 +226,11 @@ function rightclick_handle(e,id,type)
   else if(type == 'file'){
     if(e.button==2){
     selected_file = id;
+    $('.unzip-menu').hide();
+    var ext = selected_file.substr(selected_file.lastIndexOf('.') + 1);
+    if(ext=='zip'){
+      $('.unzip-menu').show();
+    }
     $('#file-menu').css('left',c.x+8);
     $('#file-menu').css('top',c.y+2);
     $('#file-menu').show();
@@ -240,6 +245,7 @@ function rightclick_handle(e,id,type)
         clickAfter: false,
         beforeCopy: function(){},
         afterCopy: function(){
+          $('.unzip-menu').hide();
           $('#file-menu').hide();
         }
       });
