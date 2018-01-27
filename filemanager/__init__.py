@@ -328,11 +328,14 @@ class FileManager(object):
                         + os.path.basename(path)
                     )
                     zip_ref = zipfile.ZipFile(filename, 'r')
-                    zip_ref.extractall(self.basepath + self.current_path)
+                    #zip_ref.extractall(self.basepath + self.current_path)
+                    directory = self.basepath + self.current_path
+                    [zip_ref.extract(file, directory) for file
+                        in zip_ref.namelist() if file.endswith(tuple(self.extensions))]
                     zip_ref.close()
                 except Exception as e:
                     print e
-                    messages.append('ERROR : ' + str(e))	
+                    messages.append('ERROR : Could not unzip the file.')
 
         return messages
 
