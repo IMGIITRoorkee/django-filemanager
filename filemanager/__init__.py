@@ -21,7 +21,7 @@ ActionChoices = (
     ('add', 'add'),
     ('move', 'move'),
     ('copy', 'copy'),
-	('unzip', 'unzip'),
+    ('unzip', 'unzip'),
 )
 
 
@@ -39,6 +39,7 @@ class FileManager(object):
     maxspace,maxfilesize in KB
     """
     idee = 0
+
     def __init__(
         self,
         basepath,
@@ -329,7 +330,7 @@ class FileManager(object):
                         messages.append('Unexpected error : ' + e)
         elif action == 'unzip':
             if file_or_dir == 'dir':
-			    messages.append('Cannot unzip a directory')
+                messages.append('Cannot unzip a directory')
             else:
                 try:
                     path = os.path.normpath(path)  # strip trailing slash if any
@@ -339,7 +340,7 @@ class FileManager(object):
                         + os.path.basename(path)
                     )
                     zip_ref = zipfile.ZipFile(filename, 'r')
-                    #zip_ref.extractall(self.basepath + self.current_path)
+                    # zip_ref.extractall(self.basepath + self.current_path)
                     directory = self.basepath + self.current_path
                     for file in zip_ref.namelist():
                         if file.endswith(tuple(self.extensions)):
