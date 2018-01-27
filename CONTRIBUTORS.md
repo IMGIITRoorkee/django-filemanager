@@ -8,3 +8,4 @@
 - Erwin Junge
 - Bryan Chan
 - Shaddy Garg
+- Mahip Jain
