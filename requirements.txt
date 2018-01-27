@@ -1,2 +1,3 @@
 django>=1.7,<1.8
 Pillow
+python-magic
