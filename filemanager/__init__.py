@@ -9,6 +9,8 @@ import os
 import shutil
 import re
 import tarfile
+import zipfile
+import magic
 
 path_end = r'(?P<path>[\w\d_ -/.]*)$'
 
@@ -19,6 +21,7 @@ ActionChoices = (
     ('add', 'add'),
     ('move', 'move'),
     ('copy', 'copy'),
+    ('unzip', 'unzip'),
 )
 
 
@@ -36,6 +39,7 @@ class FileManager(object):
     maxspace,maxfilesize in KB
     """
     idee = 0
+
     def __init__(
         self,
         basepath,
@@ -184,6 +188,16 @@ class FileManager(object):
                         for chunk in f.chunks():
                             dest.write(chunk)
                     f.close()
+                    mimetype = magic.from_file(filepath, mime=True)
+                    guessed_exts = mimetypes.guess_all_extensions(mimetype)
+                    guessed_exts = [ext[1:] for ext in guessed_exts]
+                    common = [ext for ext in guessed_exts if ext in self.extensions]
+                    if not common:
+                        os.remove(filepath)
+                        messages.append(
+                            "File type not allowed : "
+                            + f.name
+                        )
             if len(messages) == 0:
                 messages.append('All files uploaded successfully')
         elif action == 'add':
@@ -314,6 +328,41 @@ class FileManager(object):
                         )
                     except Exception as e:
                         messages.append('Unexpected error : ' + e)
+        elif action == 'unzip':
+            if file_or_dir == 'dir':
+                messages.append('Cannot unzip a directory')
+            else:
+                try:
+                    path = os.path.normpath(path)  # strip trailing slash if any
+                    filename = (
+                        self.basepath
+                        + self.current_path
+                        + os.path.basename(path)
+                    )
+                    zip_ref = zipfile.ZipFile(filename, 'r')
+                    # zip_ref.extractall(self.basepath + self.current_path)
+                    directory = self.basepath + self.current_path
+                    for file in zip_ref.namelist():
+                        if file.endswith(tuple(self.extensions)):
+                            zip_ref.extract(file, directory)
+                            mimetype = magic.from_file(directory + file, mime=True)
+                            print directory + file
+                            guessed_exts = mimetypes.guess_all_extensions(mimetype)
+                            guessed_exts = [ext[1:] for ext in guessed_exts]
+                            common = [ext for ext in guessed_exts if ext in self.extensions]
+                            if not common:
+                                os.remove(directory+file)
+                                messages.append(
+                                    "File in the zip is not allowed : "
+                                    + file
+                                )
+                    zip_ref.close()
+                except Exception as e:
+                    print e
+                    messages.append('ERROR : Could not unzip the file.')
+                if len(messages) == 0:
+                    messages.append('Extraction completed successfully.')
+
         return messages
 
     def directory_structure(self):
