@@ -133,9 +133,9 @@ function show_files(id)
   }
   for(f in files)
   { var ext = files[f].split('.')[(files[f].split('.').length-1)];
-    $('#content').append("<div class='file' title='"+files[f]+"'"+
-       "onmousedown='rightclick_handle(event,\""+files[f]+"\",\"file\");'><div class='thumbnail'>"+
-       "<div style=\"background-image:url('"+get_path(id).substr(1)+files[f]+"');\" width='100%' height='100%' ></div></div>"+
+    $('#content').append("<div class='file' title='"+escape(files[f])+"'"+
+       "onmousedown='rightclick_handle(event,\""+escape(files[f])+"\",\"file\");'><div class='thumbnail'>"+
+       "<div style=\"background-image:url('"+get_path(id).substr(1)+escape(files[f])+"');\" width='100%' height='100%' ></div></div>"+
        "<div class='filename'>"+files[f]+"</div></div>\n");
   }
   $('#status').html(get_path(id))
@@ -382,8 +382,7 @@ function form_submit(action,type,value){
     $('#submit').trigger('click');
   }
   else if(action == 'unzip')
-  { console.log("kjdshd");
-  	// if(type == 'dir')$('#path').val(get_path(selected_dir_id));
+  { // if(type == 'dir')$('#path').val(get_path(selected_dir_id));
     if(type == 'file')$('#path').val(get_path(dir_id)+selected_file);
     $('#action').val('unzip');
     $('#submit').trigger('click');
