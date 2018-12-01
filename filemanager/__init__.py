@@ -1,9 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.core.servers.basehttp import FileWrapper
 from django import forms
 from PIL import Image
-import settings
+from . import settings
 import mimetypes
 import os
 import shutil
@@ -346,7 +345,7 @@ class FileManager(object):
                         if file.endswith(tuple(self.extensions)):
                             zip_ref.extract(file, directory)
                             mimetype = magic.from_file(directory + file, mime=True)
-                            print directory + file
+                            print(directory + file)
                             guessed_exts = mimetypes.guess_all_extensions(mimetype)
                             guessed_exts = [ext[1:] for ext in guessed_exts]
                             common = [ext for ext in guessed_exts if ext in self.extensions]
@@ -358,7 +357,7 @@ class FileManager(object):
                                 )
                     zip_ref.close()
                 except Exception as e:
-                    print e
+                    print(e)
                     messages.append('ERROR : Could not unzip the file.')
                 if len(messages) == 0:
                     messages.append('Extraction completed successfully.')
@@ -441,8 +440,8 @@ class FileManager(object):
             mx = max([width, height])
             w, h = width, height
             if mx > 60:
-                w = width*60/mx
-                h = height*60/mx
+                w = int(width*60/mx)
+                h = int(height*60/mx)
             img = img.resize((w, h), Image.ANTIALIAS)
             response = HttpResponse(content_type="image/png")
             response['Cache-Control'] = 'max-age:3600'
@@ -454,11 +453,11 @@ class FileManager(object):
             return HttpResponse('Invalid path')
         if file_or_dir == 'file':
             filepath = self.basepath + '/' + path
-            wrapper = FileWrapper(open(filepath))
-            response = HttpResponse(
-                wrapper,
-                content_type=mimetypes.guess_type(filepath)[0],
-            )
+            with open(filepath, 'rb') as f:
+                response = HttpResponse(
+                    f.read(),
+                    content_type=mimetypes.guess_type(filepath)[0],
+                )
             response['Content-Length'] = os.path.getsize(filepath)
             response['Content-Disposition'] = (
                 'attachment; filename=' + path.split('/')[-1]
@@ -499,7 +498,7 @@ class FileManager(object):
             'filemanager/index.html',
             {
                 'dir_structure': self.directory_structure(),
-                'messages': map(str, messages),
+                'messages': list(map(str, messages)),
                 'current_id': self.current_id,
                 'CKEditorFuncNum': CKEditorFuncNum,
                 'ckeditor_baseurl': self.ckeditor_baseurl,
