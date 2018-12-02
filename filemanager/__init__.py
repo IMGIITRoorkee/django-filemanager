@@ -115,7 +115,7 @@ class FileManager(object):
             name
             and file_or_dir == 'file'
             and (
-                re.search('\.\.', name)
+                re.search(r'\.\.', name)
                 or not re.match(r'[\w\d_ -.]+', name).group(0) == name
             )
         )
@@ -130,8 +130,8 @@ class FileManager(object):
         if action == 'upload':
             for f in files.getlist('ufile'):
                 file_name_invalid = (
-                    re.search('\.\.', f.name)
-                    or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name
+                    re.search(r'\.\.', f.name)
+                    or not re.match(r'[\w\d_ -/.]+', f.name).group(0) == f.name
                 )
                 if file_name_invalid:
                     messages.append("File name is not valid : " + f.name)
