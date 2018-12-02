@@ -183,7 +183,7 @@ class FileManager(object):
                         + path
                         + self.rename_if_exists(self.basepath + path, filename)
                     )
-                    with open(filepath, 'w') as dest:
+                    with open(filepath, 'wb') as dest:
                         for chunk in f.chunks():
                             dest.write(chunk)
                     f.close()
