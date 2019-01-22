@@ -78,7 +78,7 @@ class FileManager(object):
                     full_path = folder + name + '.' + str(i) + extension
                     if not os.path.exists(full_path):
                         break
-                return name + '.' + str(i) + extension
+                return "{0}.{1}{2}".format(name, str(i), extension)
         else:
             return file
 
@@ -108,7 +108,7 @@ class FileManager(object):
             and not re.match(r'[\w\d_ -]+', name).group(0) == name
         )
         if invalid_folder_name:
-            messages.append("Invalid folder name : " + name)
+            messages.append('{0}{1}'.format("Invalid folder name : ", name))
             return messages
 
         invalid_file_name = (
