@@ -34,9 +34,9 @@ class FileManagerForm(forms.Form):
 
 
 class FileManager(object):
-    """
+    '''
     maxspace,maxfilesize in KB
-    """
+    '''
     idee = 0
 
     def __init__(
