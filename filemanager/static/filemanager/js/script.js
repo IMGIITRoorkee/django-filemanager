@@ -28,7 +28,7 @@ function onload(){
   size();
   refresh_dirs();
   show_files(dir_id);
-  $('body').bind('click',function(e){$('#dir-menu').hide();$('#file-menu').hide();});
+  $('body').bind('click',function(e){$('#dir-menu').hide();$('.unzip-menu').hide();$('#file-menu').hide();});
   if(messages.length>0){
     $('#message').html(messages[0]);
     setTimeout("$('#message').html('Hint : Use right click to add, rename or delete files and folders');",10000);
@@ -133,9 +133,9 @@ function show_files(id)
   }
   for(f in files)
   { var ext = files[f].split('.')[(files[f].split('.').length-1)];
-    $('#content').append("<div class='file' title='"+files[f]+"'"+
-       "onmousedown='rightclick_handle(event,\""+files[f]+"\",\"file\");'><div class='thumbnail'>"+
-       "<div style=\"background-image:url('"+get_path(id).substr(1)+files[f]+"');\" width='100%' height='100%' ></div></div>"+
+    $('#content').append("<div class='file' title='"+escape(files[f])+"'"+
+       "onmousedown='rightclick_handle(event,\""+escape(files[f])+"\",\"file\");'><div class='thumbnail'>"+
+       "<div style=\"background-image:url('"+get_path(id).substr(1)+escape(files[f])+"');\" width='100%' height='100%' ></div></div>"+
        "<div class='filename'>"+files[f]+"</div></div>\n");
   }
   $('#status').html(get_path(id))
@@ -226,6 +226,11 @@ function rightclick_handle(e,id,type)
   else if(type == 'file'){
     if(e.button==2){
     selected_file = id;
+    $('.unzip-menu').hide();
+    var ext = selected_file.substr(selected_file.lastIndexOf('.') + 1);
+    if(ext=='zip'){
+      $('.unzip-menu').show();
+    }
     $('#file-menu').css('left',c.x+8);
     $('#file-menu').css('top',c.y+2);
     $('#file-menu').show();
@@ -240,6 +245,7 @@ function rightclick_handle(e,id,type)
         clickAfter: false,
         beforeCopy: function(){},
         afterCopy: function(){
+          $('.unzip-menu').hide();
           $('#file-menu').hide();
         }
       });
@@ -308,6 +314,7 @@ function do_action(act,t)
   if(act == 'copy-public-link'){window.prompt("Public URL(Ctrl+C to copy to clipboard):",public_url_base+get_path(dir_id)+selected_file);return;}
   if(act == 'cut'){ clipboard['empty']=false;clipboard['type']='file';clipboard['path']=get_path(dir_id)+selected_file;clipboard['mode']='cut';return;}
   if(act == 'copy'){ clipboard['empty']=false;clipboard['type']='file';clipboard['path']=get_path(dir_id)+selected_file;clipboard['mode']='copy';return;}
+  if(act == 'unzip'){clipboard['empty']=false;clipboard['type']='file';clipboard['path']=get_path(dir_id)+selected_file;clipboard['mode']='unzip';form_submit(clipboard['mode'],clipboard['type'],'');return;}
  }
  action = act;
  type = t;
@@ -372,6 +379,12 @@ function form_submit(action,type,value){
   { if(type == 'dir')$('#path').val(get_path(selected_dir_id));
     if(type == 'file')$('#path').val(get_path(dir_id)+selected_file);
     $('#action').val('delete');
+    $('#submit').trigger('click');
+  }
+  else if(action == 'unzip')
+  { // if(type == 'dir')$('#path').val(get_path(selected_dir_id));
+    if(type == 'file')$('#path').val(get_path(dir_id)+selected_file);
+    $('#action').val('unzip');
     $('#submit').trigger('click');
   }
 }

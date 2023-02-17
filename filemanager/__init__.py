@@ -3,15 +3,16 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.core.servers.basehttp import FileWrapper
 from django import forms
 from PIL import Image
-import settings
+from . import settings
 import mimetypes
 import os
 import shutil
 import re
 import tarfile
+import zipfile
+import magic
 
 path_end = r'(?P<path>[\w\d_ -/.]*)$'
 
@@ -22,6 +23,7 @@ ActionChoices = (
     ('add', 'add'),
     ('move', 'move'),
     ('copy', 'copy'),
+    ('unzip', 'unzip'),
 )
 
 
@@ -46,7 +48,7 @@ class FileManager(object):
         ckeditor_baseurl='',
         maxfolders=50,
         maxspace=5*1024,
-        maxfilesize=1*1024,
+        maxfilesize=5*1024,
         public_url_base=None,
         extensions=None,
     ):
@@ -116,7 +118,7 @@ class FileManager(object):
             name
             and file_or_dir == 'file'
             and (
-                re.search('\.\.', name)
+                re.search(r'\.\.', name)
                 or not re.match(r'[\w\d_ -.]+', name).group(0) == name
             )
         )
@@ -131,8 +133,8 @@ class FileManager(object):
         if action == 'upload':
             for f in files.getlist('ufile'):
                 file_name_invalid = (
-                    re.search('\.\.', f.name)
-                    or not re.match('[\w\d_ -/.]+', f.name).group(0) == f.name
+                    re.search(r'\.\.', f.name)
+                    or not re.match(r'[\w\d_ -/.]+', f.name).group(0) == f.name
                 )
                 if file_name_invalid:
                     messages.append("File name is not valid : " + f.name)
@@ -178,15 +180,26 @@ class FileManager(object):
                             + f.name
                         )
                 else:
+                    filename = f.name.replace(' ', '_')  # replace spaces to prevent fs error
                     filepath = (
                         self.basepath
                         + path
-                        + self.rename_if_exists(self.basepath + path, f.name)
+                        + self.rename_if_exists(self.basepath + path, filename)
                     )
-                    with open(filepath, 'w') as dest:
+                    with open(filepath, 'wb') as dest:
                         for chunk in f.chunks():
                             dest.write(chunk)
                     f.close()
+                    mimetype = magic.from_file(filepath, mime=True)
+                    guessed_exts = mimetypes.guess_all_extensions(mimetype)
+                    guessed_exts = [ext[1:] for ext in guessed_exts]
+                    common = [ext for ext in guessed_exts if ext in self.extensions]
+                    if not common:
+                        os.remove(filepath)
+                        messages.append(
+                            "File type not allowed : "
+                            + f.name
+                        )
             if len(messages) == 0:
                 messages.append('All files uploaded successfully')
         elif action == 'add':
@@ -317,6 +330,41 @@ class FileManager(object):
                         )
                     except Exception as e:
                         messages.append('Unexpected error : ' + e)
+        elif action == 'unzip':
+            if file_or_dir == 'dir':
+                messages.append('Cannot unzip a directory')
+            else:
+                try:
+                    path = os.path.normpath(path)  # strip trailing slash if any
+                    filename = (
+                        self.basepath
+                        + self.current_path
+                        + os.path.basename(path)
+                    )
+                    zip_ref = zipfile.ZipFile(filename, 'r')
+                    # zip_ref.extractall(self.basepath + self.current_path)
+                    directory = self.basepath + self.current_path
+                    for file in zip_ref.namelist():
+                        if file.endswith(tuple(self.extensions)):
+                            zip_ref.extract(file, directory)
+                            mimetype = magic.from_file(directory + file, mime=True)
+                            print(directory + file)
+                            guessed_exts = mimetypes.guess_all_extensions(mimetype)
+                            guessed_exts = [ext[1:] for ext in guessed_exts]
+                            common = [ext for ext in guessed_exts if ext in self.extensions]
+                            if not common:
+                                os.remove(directory+file)
+                                messages.append(
+                                    "File in the zip is not allowed : "
+                                    + file
+                                )
+                    zip_ref.close()
+                except Exception as e:
+                    print(e)
+                    messages.append('ERROR : Could not unzip the file.')
+                if len(messages) == 0:
+                    messages.append('Extraction completed successfully.')
+
         return messages
 
     def directory_structure(self):
@@ -395,8 +443,8 @@ class FileManager(object):
             mx = max([width, height])
             w, h = width, height
             if mx > 60:
-                w = width*60/mx
-                h = height*60/mx
+                w = int(width*60/mx)
+                h = int(height*60/mx)
             img = img.resize((w, h), Image.ANTIALIAS)
             response = HttpResponse(content_type="image/png")
             response['Cache-Control'] = 'max-age:3600'
@@ -408,11 +456,11 @@ class FileManager(object):
             return HttpResponse('Invalid path')
         if file_or_dir == 'file':
             filepath = self.basepath + '/' + path
-            wrapper = FileWrapper(open(filepath))
-            response = HttpResponse(
-                wrapper,
-                content_type=mimetypes.guess_type(filepath)[0],
-            )
+            with open(filepath, 'rb') as f:
+                response = HttpResponse(
+                    f.read(),
+                    content_type=mimetypes.guess_type(filepath)[0],
+                )
             response['Content-Length'] = os.path.getsize(filepath)
             response['Content-Disposition'] = (
                 'attachment; filename=' + path.split('/')[-1]
@@ -453,7 +501,7 @@ class FileManager(object):
             'filemanager/index.html',
             {
                 'dir_structure': self.directory_structure(),
-                'messages': map(str, messages),
+                'messages': list(map(str, messages)),
                 'current_id': self.current_id,
                 'CKEditorFuncNum': CKEditorFuncNum,
                 'ckeditor_baseurl': self.ckeditor_baseurl,

@@ -10,8 +10,6 @@ SECRET_KEY = '(87tn_@g0nktauqp^@y(m$3=tv_l9-3xi19dwb9k_9v-^jq$yi'
 
 DEBUG = True
 
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 MEDIA_ROOT = BASE_DIR
@@ -44,6 +42,22 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'filemanager.db'),
     }
 }
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    }
+]
+
 
 LANGUAGE_CODE = 'en-us'
 

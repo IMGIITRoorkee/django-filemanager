@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.utils.safestring import mark_safe
 
-from settings import FILEMANAGER_CKEDITOR_JS
+from .settings import FILEMANAGER_CKEDITOR_JS
 
 
 def filemanager_config(url):
